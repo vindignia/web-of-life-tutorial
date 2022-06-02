@@ -7,6 +7,7 @@ Ecological_Networks_FS22.Rmd
 _book/
 _bookdown_files/
 packages.bib
+*html
 *log
 *dvi
 *aux
