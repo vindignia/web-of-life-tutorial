@@ -1,0 +1,14 @@
+Ecological_Networks_FS22.Rmd
+.DS_Store
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+_book/
+_bookdown_files/
+packages.bib
+*log
+*dvi
+*aux
+*Rproj
+

@@ -1,0 +1,8 @@
+bookdown::gitbook:
+  css: style.css
+  config:
+    toc:
+      before: |
+        <li><a href="./">Web of life tutorial</a></li>
+    download: ["pdf"]
+#bookdown::epub_book: default

@@ -1,0 +1,133 @@
+---
+output: html_document
+---
+
+```{r setup-03, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message=FALSE)
+
+source("./functions/helper.R")
+```
+
+# Compute the connectance  
+
+The **connectance** is one of the properties characterizing a network and is defined as the ratio between the actual number of links (i.e. pairwise interactions among species) and the maximal number of links that could be realized in that type of network. 
+For a bipartite network at most all the species of one group (e.g. plants) can interact with all the species of the other group (e.g. animals). Let us focus on pollination networks for which the connectance is defined as 
+\begin{equation}
+\frac{\# \, links}{(\# \, plants) \times (\# animals)} \,.
+\end{equation}
+(The definition of connectance for a foodweb will be discussed in the questions and in forthcoming lectures).
+
+## From an edge list  
+
+When a network is given in the edge-list representation, computing the its connectance is straightforward. Let us compute the connectance for all the pollination networks available on 
+<a href="https://www.web-of-life.es" target="_blank">Web of life</a>
+and store its value in a dataframe along with the size of the incidence matrix associated with each network. <br>
+We start downloading all the networks with `interaction_type=Pollination`
+```{r}
+# define the base url
+base_url <- "https://www.web-of-life.es/"   
+json_url <- paste0(base_url,"get_networks.php?interaction_type=Pollination") 
+pol_nws <- jsonlite::fromJSON(json_url)
+head(pol_nws)
+```
+When data, for a given network, is given in the form of `edge list`, computing the connectance is straightforward: one just needs to count the number of rows in the data frame (links) and the *distinct* rows in the column species1 (e.g. plants) and species2 (e.g. animals). <br>
+We first create a dataframe containing only the distinct network names 
+
+```{r}
+pol_nw_names <- distinct(pol_nws, network_name)
+```
+
+Now we perform a `for loop` on the network names and compute the connectance and the size of the relative incidence matrix 
+
+```{r}
+# initialize dataframe  to store results 
+pol_connectance_df <- NULL         
+
+for (nw_name in pol_nw_names$network_name){
+  
+  nw <- filter(pol_nws, network_name == nw_name) 
+  
+  links <- nw %>% nrow() 
+  plants <- distinct(nw, species2) %>%  nrow() 
+  animals <- distinct(nw, species1) %>% nrow()
+  size <- plants*animals
+  conn <- links/size    
+  
+  conn_row <- data.frame(nw_name, size, conn)
+  
+  pol_connectance_df <- rbind(pol_connectance_df, conn_row)
+}
+
+colnames(pol_connectance_df) <- c("network_name", "size", "connectance")
+```
+
+You can visualize the results as usual:
+
+```
+pol_connectance_df %>% formattable()  
+```
+
+**ACHTUNG:** The <a href="https://www.web-of-life.es" target="_blank">Web of life</a> API returns a dataframe in which only meaningful values for the `connection_strength` are given. Generally, it will be wise to check if all interaction values are non-vanishing and possibly filter out from the edge list the rows corresponding to vanishing or NA `connection_strength`. In pseudo code, this is done as follows 
+```
+pol_nws_good <- filter(pol_nws, connection_strength > 0) %>% 
+  filter(., !is.na(connection_strength)) 
+```
+
+The next plot shows the connectance of all pollination networks *versus* the incidence-matrix size for each network:
+
+```{r, warning=FALSE}
+# import the ggplot2 package (if not done at the beginning) 
+library(ggplot2)
+
+options(repr.plot.width=5, repr.plot.height=4)
+ggplot() +
+  ggtitle("Pollination networks") +
+  stat_function(fun = function(x) power_decay(x,4.8,0.5), color ="black", linetype = "dotted") +
+  geom_point(data = pol_connectance_df, aes(size, connectance), color = "purple", shape=1) +
+  labs(x = "Incidence matrix size", 
+       y = "Network connectance") +
+  scale_x_continuous(trans='log10') +
+  scale_y_continuous(trans='log10') 
+
+```
+
+## Filter by latitude  
+
+Making use of the information contained in the metadata, you can filter the networks to analyze according to the latitude and longitude of the location in which the data was collected.       
+Assume you would like to display with a different color the connectance of the subset of networks in the tropical area. We start downloading the metadata of all networks in
+<a href="https://www.web-of-life.es" target="_blank">Web of life</a> (see above)
+
+```{r, warning=FALSE}
+nws_info <- read.csv(paste0(base_url,"get_network_info.php")) 
+my_nws_info <- select(nws_info, network_name, location, latitude,longitude)
+```
+
+From this dataframe we select the names of networks recorded in the tropical region, namely in the area with latitude between -23.43647$^\circ$ and 23.43647$^\circ$. 
+
+```{r}
+tropical_nws_info <- nws_info %>% filter(.,between(latitude, -23.43647, 23.43647))  
+tropical_nw_names <- distinct(tropical_nws_info, network_name) 
+```
+Now we keep in the dataframe `pol_connectance_df` only the data corresponding to tropical networks. In practice, we look for the intersection of the two ensembles: polination networks and tropical networks 
+```{r}
+tropical_pol_conn_df <- filter(pol_connectance_df, network_name %in% tropical_nw_names$network_name) %>%
+  select(network_name, size, connectance)
+```
+
+At this point we can superimpose the (orange) points calculated for tropical networks to the previous plot 
+
+```{r, warning=FALSE}
+options(repr.plot.width=5, repr.plot.height=4)
+ggplot() +
+  ggtitle("Tropical pollination networks") +
+  stat_function(fun = function(x) power_decay(x,4.,0.5), color ="black", linetype = "dotted") +
+  geom_point(data = pol_connectance_df, aes(size, connectance), color = "purple", shape=1) +
+  geom_point(data = tropical_pol_conn_df, aes(size, connectance), color = "dark orange") +
+  labs(x = "Incidence matrix size", 
+       y = "Network connectance") +
+  scale_x_continuous(trans='log10') +
+  scale_y_continuous(trans='log10') 
+```
+

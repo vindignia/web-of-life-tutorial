@@ -1,0 +1,155 @@
+---
+output: html_document
+---
+
+```{r setup-01, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message=FALSE)
+
+source("./functions/helper.R")
+```
+
+# Download network data {#session-download-data}
+
+This <a href="https://www.web-of-life.es" target="_blank">web interface</a> provides a visualization of where data of a given network have been collected over the globe. 
+Clicking the the dot corresponding to a network, the relative metadata can be visualized as well as a 3D representation of the network. 
+The incidence matrix is also displayed and can be downloaded in different formats.  
+Networks are named according to the following convention 
+<!-- specifications are contained within the name of each network -->
+  
+* **interaction type**:  mutualistic (M) or antagonistic (A) 
+* **network type**: Plant-Ant (PAO), Plant-Epiphyte (PE), Pollination (PL), Seed Dispersal (SD), Food Webs (FW), Host-Parasite (HP), Host-Parasitoid (HPD), Plant-Herbivore (PH), Anemone-Fish (AF)
+* **id** labeling a specific network. 
+
+
+## Download one network  
+
+In a research projects it is often convenient to bypass the web interface and store data directly in a dataframe using a command line. This has several advantages in terms of efficiency and reproducibility of the analysis you are conducting. We will see how to do this in `R` using the function `fromJSON()` of the package  `jsonlite`, but similar commands can be run in `python` or in other languages. To this aim, we have opened few dedicated endpoints on the Application Programming Interface (API) of the  web-of-life project. 
+
+Let us focus on the network number **002** of the **Seed Dispersal** type, named **M_SD_002**: the set fo commands to download it are
+```{r}
+# define the base url
+base_url <- "https://www.web-of-life.es/"     
+# define the full url associated with the endpoint that download networks interactions
+json_url <- paste0(base_url,"get_networks.php?network_name=M_SD_002")
+# import the jsonlite package (if not done at the beginning) 
+library(rjson) 
+# and run it 
+SD_002_nw <- jsonlite::fromJSON(json_url)
+```
+It is always good practice to have a look at the class  of a newly defined object (dataframe) and display its first rows to understand how this data looks like, number of columns, their names, etc. 
+```{r}
+# check the class 
+class(SD_002_nw)
+
+# have a look at the dataframe
+head(SD_002_nw)
+```
+The content of a dataframe can be visualized more nicely using the package `formattable`
+```{r}
+# import the formattable package (if not done at the beginning) 
+library(formattable)
+# visualize the dataframe in nicer way
+formattable(head(SD_002_nw)) # visualize the dataframe in a nicer way
+
+# formattable(SD_002_nw) # to see all the rows
+```
+
+
+## Download multiple networks  
+
+If you hit the endpoint `https://www.web-of-life.es/get_networks.php` without passing any argument into the url, all the networks available in the database are returned, namely a dataframe with columns 
+*network_name, species1, species2, connection_strength*: 
+```{r}
+json_url <- paste0(base_url,"get_networks.php") 
+all_nws <- jsonlite::fromJSON(json_url)
+
+# show results 
+formattable(head(all_nws))
+```
+You can list and count all the distinct networks you have downloaded using the function `distinct()` of the  <a href="https://dplyr.tidyverse.org/"  target="_blank">dplyr</a> package for data manipulation: 
+```{r, warning=FALSE, message=FALSE}
+# import the dplyr package (if not done at the beginning) 
+library(dplyr)
+all_nw_names <- distinct(all_nws, network_name)
+
+# show  results 
+formattable(head(all_nws))
+```
+
+Another useful functionality provided by the <a href="https://dplyr.tidyverse.org/"  target="_blank">dplyr</a> package is the *pipe operator* `%>%` which allows passing the output of a function to another one. For instance, 
+```{r, eval=FALSE}
+formattable(head(all_nws))
+# is equivalent to 
+head(all_nws) %>% formattable()
+```
+
+Networks can be filtered by **interaction type** passing this as an argument in the url. Accepted values of the parameter `interaction_type` are:  <br>
+  * Anemone-Fish  <br>
+  * FoodWebs <br>
+  * Host-Parasite <br> 
+  * Plant-Ant <br>
+  * Plant-Herbivore  <br>
+  * Pollination  <br>
+  * SeedDispersal <br>
+  * [default ALL]  
+
+Here the example for pollination networks: 
+```{r}
+json_url <- paste0(base_url,"get_networks.php?interaction_type=Pollination") 
+pol_nws <- jsonlite::fromJSON(json_url)
+```
+
+
+Networks can also be filtered by **data type** setting the parameter `data_type` equals to  weighted or binary  [default ALL]. To download weighted, pollination networks you can run the command: 
+```{r}
+json_url <- paste0(base_url,"get_networks.php?interaction_type=Pollination&data_type=weighted") 
+pol_weighted_nws <- jsonlite::fromJSON(json_url)
+```
+
+
+## Download network metadata  
+
+You can obtain a csv file containing the **information about species** in a given network hitting the endpoint `https://www.web-of-life.es/get_species_info.php` and passing the network name into the url, namely
+
+```{r}
+# define the base url
+base_url <- "https://www.web-of-life.es/"     
+# download dataframe 
+M_PL_073_info <- read.csv(paste0(base_url,"get_species_info.php?network_name=M_PL_073"))
+# show results 
+head(M_PL_073_info) # %>% formattable()
+```
+
+You can obtain a csv file with the **metadata** of all the networks hitting the endpoint 
+`https://www.web-of-life.es/get_network_info.php`:      
+```{r}
+all_nw_info <- read.csv(paste0(base_url,"get_network_info.php"))
+
+# see what information is provided 
+colnames(all_nw_info)
+
+# select only some specific columns 
+my_nw_info <- select(all_nw_info, network_name, location, latitude, longitude)
+
+head(my_nw_info) %>% formattable()
+
+```
+For completeness, we mention that passing the initial part of a network name into the url you can obtain the metadata for networks whose name starts, e.g., with *M_PL_072*
+```{r}
+my_nws_info <- read.csv(paste0(base_url,"get_network_info.php?network_name=M_PL_072")) %>%
+  select(network_name, location, latitude,longitude)
+# visualize data
+my_nws_info %>% formattable()
+```
+
+
+### Example: networks in the tropical region {-}   
+
+If you are interested in knowing which networks in <a href="https://www.web-of-life.es" target="_blank">Web of life</a> have been collected in the tropical region, you can use function `filter()` of the  <a href="https://dplyr.tidyverse.org/"  target="_blank">dplyr</a> package for data manipulation: 
+```
+tropical_nws_info <- my_nws_info %>% filter(.,between(latitude, -23.43647, 23.43647)) 
+```
+
+

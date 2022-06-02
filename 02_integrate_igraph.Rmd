@@ -1,0 +1,221 @@
+---
+output: html_document
+---
+
+```{r setup-02, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message=FALSE)
+
+source("./functions/helper.R")
+```
+# Analyze networks with igraph
+
+In the language of graph theory (or complex networks) species of an ecological network would be the **nodes** (**vertices**) of a graph and **links** (or **edges**) their pairwise interactions. 
+
+The reference package for graph/network analysis is <a href="https://igraph.org/" target="_blank">igraph</a>. 
+It is an open source software, optimized by professional developers and can be invoked from R, Python, Mathematica, and C/C++. It contains a lot of libraries, though you will explore only few of them throughout this course. 
+The recommendation is that, whenever you need to do some operation or calculation with networks, you first look if that functionality is already provided in `igraph`. If not, you can probably build on some existing functions to develop your own function/package. 
+
+In the following we will use the word *graph* meaning an igraph object in the context of the `igraph` package. But, obviously, <a href="https://en.wikipedia.org/wiki/Graph" target="_blank">graph</a> refers to a more general mathematical entity. 
+Network data can be represented in several ways, corresponding to different data structures (classes). Below we will consider the following ones: 
+
+| representation | data structure | 
+|:----:|:---------------:|
+| edge list | dataframe | 
+| graph | igraph object | 
+| adjacency matrix | matrix/array |
+| incidence matrix | matrix/array | 
+
+
+
+## From dataframe to igraph object 
+
+The network data downloaded from <a href="https://www.web-of-life.es" target="_blank">Web of life</a> are stored in a representation (*network_name, species1, species2, connection_strength*). The last three columns correspond to the `edgelist` representation of a graph. Therefore, the values contained in those three columns can be converted into a graph object using the function `graph_from_data_frame()` of the  <a href="https://igraph.org/" target="_blank">igraph</a> package 
+```{r}
+# download the foodweb FW_001 
+json_url <- paste0(base_url,"get_networks.php?network_name=FW_001")
+FW_001_nw <- jsonlite::fromJSON(json_url)
+
+# check the class 
+class(FW_001_nw) 
+
+# import the igraph package (if not done at the beginning) 
+library(igraph)
+
+# select the 3 relevant columns and create the igraph object 
+FW_001_graph <- FW_001_nw %>% select(species1, species2, connection_strength) %>% 
+  graph_from_data_frame(directed = TRUE)
+
+# check the class 
+class(FW_001_graph) 
+```
+
+As you can see from the last command, we have just created an *igraph object*. Note that, since in foodwebs it is relevant *who eats whom*, the representative graph is **directed**. This is specified setting the corresponding  parameter as `TRUE` in the function `graph_from_data_frame()`.  
+ 
+
+
+## Plot a foodweb as a directed graph
+
+Once the network is represented as an `igraph` object it  can easily  be visualized 
+
+```{r} 
+plot(FW_001_graph, vertex.size=4, 
+     vertex.label=NA, 
+     edge.arrow.size= 0.3, 
+     layout = layout_on_sphere)  
+```
+
+Other possible layouts are: layout_nicely, layout_with_kk, layout_randomly, layout_in_circle, layout_on_sphere.  
+
+
+
+## From igraph object to adjacency matrix 
+
+Another way to represent an ecological network is the 
+<a href="https://en.wikipedia.org/wiki/Adjacency_matrix#:~:text=The%20adjacency%20matrix%20of%20a,the%20degree%20of%20each%20vertex." target="_blank">adjacency matrix</a>, that is a square matrix whose rows and columns run over all the species name in the network and whose elements indicate the strength of interaction between species pairs (zero means no interaction). This data structure is generally less efficient from the perspective of memory storage w.r.t. an edge list, but it can be useful to facilitate visualization or to perform some calculations (e.g., evaluate the nestedness of a network, perform spectral analysis, etc.). 
+
+Using the function `as_adjacency_matrix()` of the <a href="https://igraph.org/" target="_blank">igraph</a> package 
+the adjacency matrix associated with a given network can be created.  Let us focus on the relatively small **FW_002** foodweb. Some care must be put in passing the right arguments to the function `as_adjacency_matrix()`  
+because the graph is directed. The reader is addressed to the 
+<a href="https://igraph.org/r/doc/as_adjacency_matrix.html" target="_blank">user manual</a> for more details. 
+
+
+```{r}
+
+# download the foodweb FW_002
+json_url <- paste0(base_url,"get_networks.php?network_name=FW_002")
+FW_002_nw <- jsonlite::fromJSON(json_url)
+
+# select the 3 relevant column and pass and create the igraph object 
+FW_002_graph <- FW_002_nw %>% select(species1, species2, connection_strength) %>% 
+  graph_from_data_frame(directed = TRUE)
+
+# convert the igraph object into adjacency matrix 
+adj_matrix <- as_adjacency_matrix(FW_002_graph, 
+                                     type = "lower", # it is directed!!!
+                                     attr = "connection_strength",
+                                     sparse = FALSE)  
+
+```
+If you give a quick look at the variable *adj_matrix* running the command 
+```
+ head(adj_matrix)
+```
+you will notice that it does not produce exactly what we want: 1. elements are strings, instead of numerical values, and 2. there are some empty strings to indicate that a pair of species do not interact. We can fix both problems as follows     
+```{r}
+# convert elements into numeric values 
+class(adj_matrix) <-"numeric"
+
+# remove NA values (previous empty strings)
+adj_matrix[which(is.na(adj_matrix) == T)]<-0
+
+# check dimensions and compare with the number of species on the Web interface 
+dim(adj_matrix)
+```
+
+
+```{r}
+# convert the adjacency matrix into a dataframe just for visualization purposes 
+df <- adj_matrix %>% as.data.frame() 
+
+df <- df[order((rownames(df))),] # to order by column names 
+
+# visualize the adjacency matrix 
+df %>% formattable()
+```
+
+
+
+
+## Bipartite networks 
+
+As you will learn in the classes, several ecological networks are **bipartite**: <br>
+1. interactions are not directed <br>
+2. species can be split in two groups and interactions occurs only from one group to the other.   
+
+Typical examples are *pollination* or *seed-dispersal* networks. Let us see how these features of bipartite networks affect the way in which their data has to be handled with <a href="https://igraph.org/" target="_blank">igraph</a>.  
+We first  download the seed-dispersal network **M_SD_002** and convert into an igraph object: 
+```{r}
+# download the foodweb FW_002
+json_url <- paste0(base_url,"get_networks.php?network_name=M_SD_002")
+M_SD_002_nw <- jsonlite::fromJSON(json_url)
+
+# select the 3 relevant columns and create the igraph object 
+M_SD_002_graph <- M_SD_002_nw %>% select(species1, species2, connection_strength) %>% 
+  graph_from_data_frame() 
+```
+
+Before plotting this graph or representing it as a bipartite **incidence matrix**, one needs to determine which nodes of the graph **M_SD_002_graph** belong to one or the other group, e.g., plants or animals.  
+Luckily, the function `bipartite.mapping()` does the job of splitting the nodes in two groups, if the criterion 2. is actually met.    
+
+```{r}
+bipartite.mapping(M_SD_002_graph)
+```
+This information can be passed to the object **M_SD_002_graph** defining as TRUE/FALSE the `type` for each vertex in the graph;  <a href="https://igraph.org/" target="_blank">igraph</a> uses this attribute of vertices to identify the two groups of species. 
+
+```{r}
+# Add the "type" attribute to the vertices of the graph 
+V(M_SD_002_graph)$type <- bipartite_mapping(M_SD_002_graph)$type  
+```
+**Comment:** Advanced users can write a function that returns a vector of FALSE/TRUE booleans for species belonging to either of the two relevant groups, e.g., plant/animals.   
+
+One can also check that the igraph object was successfully converted into a bipartite graph running the following command  
+```{r}
+# check if igraph understands this object as bipartite 
+is_bipartite(M_SD_002_graph)
+```
+It is possible to pass from the representation of a bipartite graph to that of 
+<a href="https://en.wikipedia.org/wiki/Incidence_matrix#Undirected_and_directed_graphs" target="_blank">incidence_matrix</a>. 
+The latter is a matrix whose rows represent one group of species (e.g. plants) and  columns the other group (e.g. animals).
+This can be achieved using the function `as_incidence_matrix()` of the 
+<a href="https://igraph.org/" target="_blank">igraph</a> package. 
+*Mutatis mutandis* we first repeat the same steps done for the conversion from an igraph object to adjacency matrix 
+```{r}
+# convert the igraph object into incidence matrix 
+inc_matrix <- as_incidence_matrix(
+  M_SD_002_graph,
+  attr = "connection_strength",
+  names = TRUE,
+  sparse = FALSE
+)
+
+# convert elements into numeric values 
+class(inc_matrix) <-"numeric"
+
+# remove NA values (previous empty strings)
+inc_matrix[which(is.na(inc_matrix) == T)]<-0
+
+# check dimensions and compare with the number of species on the Web interface 
+dim(inc_matrix)
+```
+
+Now we would like to check whether this incidence matrix is consistent with the one displayed on the web interface of 
+<a href="https://www.web-of-life.es" target="_blank">Web of life</a> for the network **M_SD_002**
+
+```{r}
+# for this specific network the role of rows and columns is swapped w.r.t. to the matrix displayed in web-of-life 
+# we can fix it taking the transpose 
+inc_matrix <- t(inc_matrix)
+
+# convert the incidence matrix into a dataframe just for visualization purposes 
+df <- inc_matrix %>% as.data.frame() 
+
+df <- df[order((rownames(df))),] # to order by column names 
+
+#visualize the adjacency matrix 
+df %>% formattable()
+
+```
+
+
+After having downloaded and converted it into an incidence matrix, you can visualize the network **M_SD_002** using the function `plotweb()` of the 
+<a href="https://cran.r-project.org/web/packages/bipartite/bipartite.pdf" target="_blank">bipartite</a> package: 
+```{r}
+# import the bipartite package (if not done at the beginning) 
+library(bipartite)
+plotweb(inc_matrix)
+```
+
+The two groups of species within this bipartite network are shown on different layers: seed dispersers (top) and plants (bottom). 
+

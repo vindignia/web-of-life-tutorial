@@ -1,0 +1,6 @@
+book_filename: "Web-of-life-tutorial"
+language:
+  ui:
+delete_merged_file: true
+#new_session: yes
+rmd_files:
