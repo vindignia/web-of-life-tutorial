@@ -1,0 +1,30 @@
+---
+  output: html_document
+---
+  
+```{r setup-04, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message=FALSE)
+
+# source("./functions/helper.R")
+```
+# Anaylize networks with bipartite
+
+The the 
+<a href="https://cran.r-project.org/web/packages/bipartite/bipartite.pdf" target="_blank">bipartite</a> package offers several powerful tool for the analysis of 
+bipartite networks. 
+The preliminary steps needed to integrate <a href="https://www.web-of-life.es" target="_blank">Web of life</a> with this package i.e., turn the network data into a bipartite graph, have been explained in Section \@ref(bipartite-nw-02).  <br>
+For instance, after having downloaded and converted the relative data into an incidence matrix, one can visualize the network **M_SD_002** using the function `plotweb()` the bipartite package:  
+```{r}
+# import the bipartite package (if not done at the beginning) 
+library(bipartite)
+plotweb(inc_matrix)
+```
+
+The two groups of species within this bipartite network are shown on different layers: seed dispersers (top) and plants (bottom). 
+
+Bipartite also offer also the the function `visweb()`  to visualize the incidence matrix:  
+```{r}
+visweb(inc_matrix)
+```

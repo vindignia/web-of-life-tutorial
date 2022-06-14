@@ -17,7 +17,7 @@ For a bipartite network at most all the species of one group (e.g. plants) can i
 \begin{equation}
 \frac{\# \, links}{(\# \, plants) \times (\# animals)} \,.
 \end{equation}
-(The definition of connectance for a foodweb will be discussed in the questions and in forthcoming lectures).
+(The definition of connectance for a foodweb will be discussed later on).
 
 ## From an edge list  
 
@@ -131,3 +131,17 @@ ggplot() +
   scale_y_continuous(trans='log10') 
 ```
 
+
+## Foodwebs 
+
+For foodwebs the **connectance** is defined as 
+\begin{equation}
+\frac{2 \times (\# \, links)}{N \times (N-1)} 
+\end{equation}
+where $N$ is the size of the adjacency matrix associated with the foodweb. Referring to the example given in section \@ref(adjacency-fw-02) and relative commands, the connectance of the foodweb  **FW_002** is obtained as  
+```{r}
+links <- FW_002_nw %>% nrow() 
+size <- nrow(adj_matrix)
+conn <- 2*links/(size*(size-1))      
+conn
+```

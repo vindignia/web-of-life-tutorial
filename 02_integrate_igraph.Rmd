@@ -70,7 +70,7 @@ Other possible layouts are: layout_nicely, layout_with_kk, layout_randomly, layo
 
 
 
-## From igraph object to adjacency matrix 
+## From igraph object to adjacency matrix  {#adjacency-fw-02}
 
 Another way to represent an ecological network is the 
 <a href="https://en.wikipedia.org/wiki/Adjacency_matrix#:~:text=The%20adjacency%20matrix%20of%20a,the%20degree%20of%20each%20vertex." target="_blank">adjacency matrix</a>, that is a square matrix whose rows and columns run over all the species name in the network and whose elements indicate the strength of interaction between species pairs (zero means no interaction). This data structure is generally less efficient from the perspective of memory storage w.r.t. an edge list, but it can be useful to facilitate visualization or to perform some calculations (e.g., evaluate the nestedness of a network, perform spectral analysis, etc.). 
@@ -155,7 +155,7 @@ M_SD_002_info <- read.csv(paste0(base_url,"get_species_info.php?network_name=M_S
 isResource <- M_SD_002_info$is.resource %>% as.logical() # 0/1 converted to FALSE/TRUE
 ```
 
-This list can be used to split the nodes of the graph **M_SD_002_graph** into two ecologically meaningful guilds;  <a href="https://igraph.org/" target="_blank">igraph</a> uses the `type` (TRUE/FALSE) attribute of nodes to identify the two groups of species. In code,  this reads 
+This list can be used to split the nodes of the graph **M_SD_002_graph** into two ecologically meaningful guilds;  <a href="https://igraph.org/" target="_blank">igraph</a> uses the `type` (TRUE/FALSE) attribute of nodes to identify the two groups of species. In code, this reads 
 
 ```{r}
 # Add the "type" attribute to the vertices of the graph 
@@ -169,6 +169,29 @@ One can also check that the igraph object was successfully converted into a bipa
 # check if igraph understands this object as bipartite 
 is_bipartite(M_SD_002_graph)
 ```
+
+Since interactions are not directed it is appropriate to remove the arrows attribute  from the links of our graph 
+```{r}
+E(M_SD_002_graph)$arrow.mode = "-"
+```
+Moreover, we would like to visualize our network assigning distinct colors to nodes of belonging to different groups 
+```{r}
+V(M_SD_002_graph)$color <- ifelse(V(M_SD_002_graph)$type == TRUE, "lightblue", "lightgreen")
+```
+
+```{r}
+plot(M_SD_002_graph, 
+     layout=layout_as_bipartite, 
+     arrow.mode=0,
+     vertex.label=NA,
+     vertex.size=4,
+     asp=0.2)
+```
+
+
+In this case, the nodes of the top layer in the graph above represent plants while seed dispersers are displayed on the bottom layer. To adjust the distance between nodes one can play with their size (vertex.size) and the attribute `asp` of  `iplot.graph`, which controls how rectangular a plot is: asp < 1 yields a wide plot, asp > 1 a tall plot. 
+
+### From bipartite graph to incidence matrix {-}
 It is possible to pass from the representation of a bipartite graph to that of 
 <a href="https://en.wikipedia.org/wiki/Incidence_matrix#Undirected_and_directed_graphs" target="_blank">incidence_matrix</a>. 
 The latter is a matrix whose rows represent one group of species (e.g. plants) and  columns the other group (e.g. animals).
@@ -205,4 +228,5 @@ df <- df[order((rownames(df))),] # to order by row names
 # visualize the adjacency matrix 
 df %>% formattable()
 ```
+
 
