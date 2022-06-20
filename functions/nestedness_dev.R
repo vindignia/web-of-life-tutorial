@@ -6,7 +6,7 @@ library(bipartite)
 
 base_url <- "https://www.web-of-life.es/" 
 
-nw_name <- "FW_017_02" # "M_PL_073" #  "M_PL_052" #Klementyna
+nw_name <- "M_PL_073" # "FW_017_02" # "M_PL_052" #Klementyna
 
 
 # info
