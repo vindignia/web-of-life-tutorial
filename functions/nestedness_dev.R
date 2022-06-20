@@ -23,7 +23,7 @@ V(my_graph)$color <- ifelse(V(my_graph)$type == TRUE, "lightblue", "lightgreen")
 E(my_graph)$arrow.mode = "-"
 
 plot(my_graph, 
-     layout=layout_nicely, #layout_as_bipartite, 
+     layout=layout_as_bipartite, # layout_nicely,  
      arrow.mode=0,
      vertex.label=NA,
      vertex.size=4,
