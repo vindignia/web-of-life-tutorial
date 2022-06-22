@@ -10,7 +10,7 @@ knitr::opts_chunk$set(message=FALSE)
 source("./functions/helper.R")
 ```
 
-# Compute the connectance  
+# Compute the connectance  {#connectance-03}
 
 The **connectance** is one of the properties characterizing a network and is defined as the ratio between the actual number of links (i.e. pairwise interactions among species) and the maximal number of links that could be realized in that type of network. 
 For a bipartite network at most all the species of one group (e.g. plants) can interact with all the species of the other group (e.g. animals). Let us focus on pollination networks for which the connectance is defined as 
@@ -21,7 +21,7 @@ For a bipartite network at most all the species of one group (e.g. plants) can i
 
 ## From an edge list  
 
-When a network is given in the edge-list representation, computing the its connectance is straightforward. Let us compute the connectance for all the pollination networks available on 
+Let us compute the connectance for all the pollination networks available on 
 <a href="https://www.web-of-life.es" target="_blank">Web of life</a>
 and store its value in a dataframe along with the size of the incidence matrix associated with each network. <br>
 We start downloading all the networks with `interaction_type=Pollination`

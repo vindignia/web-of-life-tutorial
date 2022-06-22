@@ -6,13 +6,21 @@ library(bipartite)
 
 base_url <- "https://www.web-of-life.es/" 
 
-nw_name <- "M_PL_073" # "FW_017_02" # "M_PL_052" #Klementyna
+nw_name <- "M_PA_001" # "M_PL_073" # "FW_017_02" # "M_PL_052" #Klementyna
 
 
 # info
 my_info <- read.csv(paste0(base_url,"get_species_info.php?network_name=",nw_name))
-
 isResource <- my_info$is.resource %>% as.logical() # 0/1 converted to FALSE/TRUE
+
+
+# download my network
+json_url <- paste0(base_url,"get_networks.php?network_name=",nw_name)
+nw <- jsonlite::fromJSON(json_url)
+
+my_graph <- nw %>% select(species1, species2, connection_strength) %>% 
+  graph_from_data_frame(directed = FALSE)
+
 
 # Add the "type" attribute to the vertices of the graph 
 V(my_graph)$type <- !(isResource) 

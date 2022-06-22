@@ -1,7 +1,5 @@
 from_wol_graph_to_incidence_matrix <- function(base_url, nw_name, wol_graph, inc_mat){
   
-  wol_graph <- my_graph
-  
   # get info about species 
   my_info <- read.csv(paste0(base_url,"get_species_info.php?network_name=",nw_name))
   
@@ -10,7 +8,7 @@ from_wol_graph_to_incidence_matrix <- function(base_url, nw_name, wol_graph, inc
   # Add the "type" attribute to the vertices of the graph 
   V(wol_graph)$type <- !(isResource) 
   
-  # is_bipartite(wol_graph)
+  #is_bipartite(wol_graph)
   
   # convert the igraph object into incidence matrix 
   inc_mat <- as_incidence_matrix(

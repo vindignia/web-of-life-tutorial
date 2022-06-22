@@ -6,6 +6,7 @@ Ecological_Networks_FS22.Rmd
 .Ruserdata
 _book/
 _bookdown_files/
+data/
 packages.bib
 *html
 *log

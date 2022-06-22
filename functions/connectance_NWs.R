@@ -7,19 +7,20 @@ library(bipartite)
 base_url <- "https://www.web-of-life.es/" 
 source("./functions/change_representation.R")
 
-# download all pollination networks
-json_url <- paste0(base_url,"get_networks.php?interaction_type=Pollination") 
-pol_nws <- jsonlite::fromJSON(json_url)
-head(pol_nws)
+# download all the networks
+json_url <- paste0(base_url,"get_networks.php") 
+all_nws <- jsonlite::fromJSON(json_url)
+head(all_nws)
 
-pol_nw_names <- distinct(pol_nws, network_name)
+nw_names <- distinct(all_nws, network_name) %>% 
+  dplyr::filter(., !(network_name %like% "FW_")) # filter out food-webs
 
-# initialize dataframe  to store results 
+# initialize dataframe to store results 
 connectance_df <- NULL         
 
-for (nw_name in pol_nw_names$network_name){
+for (nw_name in nw_names$network_name){
   
-  nw <- filter(pol_nws, network_name == nw_name) 
+  nw <- filter(all_nws, network_name == nw_name) 
   
   links <- nw %>% nrow() 
   
@@ -61,23 +62,18 @@ colnames(connectance_df) <- c("network_name",
                              "bipartite_connectance")
 
 
-connectance_df <- connectance_df %>% mutate(id = row_number())
-connectance_df <- connectance_df[, c(6,1,2,3,4,5)]
 connectance_df %>% formattable()
 
-# Visualize results 
+######### SAVE data #########
+path = "~/web-of-life-tutorial/data/"
+file_name = "connectance"
 
-library(ggplot2)
+# save RData objects  
+save(connectance_df, file = paste0(path, file_name,".RData"))
 
-options(repr.plot.width=5, repr.plot.height=4)
+# write file to csv
+write.csv(connectance_df, paste0(path, file_name,".csv"))
 
-# vs size
-ggplot() +
-  ggtitle("Pollination networks") +
-  #  stat_function(fun = function(x) power_decay(x,4.8,0.5), color ="black", linetype = "dotted") +
-  geom_point(data = connectance_df, aes(num_resources*num_consumers, connectance), color = "purple", shape=1) +
-  #geom_point(data = connectance_df, aes(num_resources*num_consumers, bipartite_connectance), color = "black", shape=1) +
-  labs(x = "network size", 
-       y = "Network connectance") +
-scale_x_continuous(trans='log10') +
-scale_y_continuous(trans='log10')
+# # to read them out 
+# df <- read.csv(file = paste0(path, file_name,".csv"))
+# colnames(df)[1] <- "id"

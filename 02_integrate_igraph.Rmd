@@ -14,8 +14,7 @@ source("./functions/helper.R")
 In the language of graph theory (or complex networks) species of an ecological network would be the **nodes** (**vertices**) of a graph and **links** (or **edges**) their pairwise interactions. 
 
 The reference package for graph/network analysis is <a href="https://igraph.org/" target="_blank">igraph</a>. 
-It is an open source software, optimized by professional developers and can be invoked from R, Python, Mathematica, and C/C++. It contains a lot of libraries, though you will explore only few of them throughout this course. 
-The recommendation is that, whenever you need to do some operation or calculation with networks, you first look if that functionality is already provided in `igraph`. If not, you can probably build on some existing functions to develop your own function/package. 
+It is an open source software, optimized by professional developers and can be invoked from R, Python, Mathematica, and C/C++. The recommendation is that, whenever you need to do some operation or calculation with networks, you first look if that functionality is already provided in `igraph`. If not, you can probably build on some existing functions to develop your own function/package. 
 
 In the following we will use the word *graph* meaning an igraph object in the context of the `igraph` package. But, obviously, <a href="https://en.wikipedia.org/wiki/Graph" target="_blank">graph</a> refers to a more general mathematical entity. 
 Network data can be represented in several ways, corresponding to different data structures (classes). Below we will consider the following ones: 
@@ -102,7 +101,7 @@ If you give a quick look at the variable *adj_matrix* running the command
 ```
  head(adj_matrix)
 ```
-you will notice that it does not produce exactly what we want: 1. elements are strings, instead of numerical values, and 2. there are some empty strings to indicate that a pair of species do not interact. We can fix both problems as follows     
+you will notice that it does not produce exactly what we want: <br> 1. elements are strings, instead of numerical values <br> 2. there are some empty strings to indicate that a pair of species do not interact. <br> We can fix both problems as follows     
 ```{r}
 # convert elements into numeric values 
 class(adj_matrix) <-"numeric"
@@ -147,7 +146,7 @@ M_SD_002_graph <- M_SD_002_nw %>% select(species1, species2, connection_strength
 ```
 
 To turn this object into a **bipartite** graph, one needs to determine which nodes (species) of the graph **M_SD_002_graph** belong to one or the other guild, e.g., plants or animals.  
-Within each network we label species acting as **resources** and opposed them to the  **consumers**. Technically, this information is returned by the boolean `is.resource` when the endpoint `https://www.web-of-life.es/get_species_info.php` is hit. 
+Within each network we label species acting as **resources** and oppose them to the  **consumers**. Technically, this information is returned by the boolean `is.resource` when the endpoint `https://www.web-of-life.es/get_species_info.php` is hit. 
 For clearness, let us store this information in the list `isResource`  
 
 ```{r}
@@ -162,7 +161,7 @@ This list can be used to split the nodes of the graph **M_SD_002_graph** into tw
 V(M_SD_002_graph)$type <- !(isResource) 
 ```
 
-By convention, when representing the graph **M_SD_002_graph** as an **incidence** matrix, we want resources to be associated with rows. These species are label with `is.resource=TRUE`. Instead, `igraph` displays as rows of the **incidence** matrix nodes with the attribute `type=FALSE`. For this reason, we applied the negation operator `!()` in the previous chuck.  
+When representing a graph -- **M_SD_002_graph** in this case -- as an **incidence** matrix, we will adopt the convention that resources be associated with rows. These species are label with `is.resource=TRUE`. Instead, `igraph` displays as rows of the **incidence** matrix nodes with the attribute `type=FALSE`. For this reason, we applied the negation operator `!()` in the previous chuck.  
 
 One can also check that the igraph object was successfully converted into a bipartite graph running the following command  
 ```{r}
@@ -174,7 +173,7 @@ Since interactions are not directed it is appropriate to remove the arrows attri
 ```{r}
 E(M_SD_002_graph)$arrow.mode = "-"
 ```
-Moreover, we would like to visualize our network assigning distinct colors to nodes of belonging to different groups 
+Moreover, we would like to visualize our network assigning distinct colors to nodes belonging to different groups 
 ```{r}
 V(M_SD_002_graph)$color <- ifelse(V(M_SD_002_graph)$type == TRUE, "lightblue", "lightgreen")
 ```
@@ -189,7 +188,7 @@ plot(M_SD_002_graph,
 ```
 
 
-In this case, the nodes of the top layer in the graph above represent plants while seed dispersers are displayed on the bottom layer. To adjust the distance between nodes one can play with their size (vertex.size) and the attribute `asp` of  `iplot.graph`, which controls how rectangular a plot is: asp < 1 yields a wide plot, asp > 1 a tall plot. 
+In the example above, the nodes of the top layer in the graph above represent plants while seed dispersers are displayed on the bottom layer. To adjust the distance between nodes one can play with their size (vertex.size) and the attribute `asp` of  `iplot.graph`, which controls how rectangular a plot is: asp < 1 yields a wide plot, asp > 1 a tall plot. 
 
 ### From bipartite graph to incidence matrix {-}
 It is possible to pass from the representation of a bipartite graph to that of 
@@ -225,7 +224,7 @@ df <- inc_matrix %>% as.data.frame()
 df <- df[,order((colnames(df)))] # to order by column names 
 df <- df[order((rownames(df))),] # to order by row names 
 
-# visualize the adjacency matrix 
+# visualize the incidence matrix 
 df %>% formattable()
 ```
 
