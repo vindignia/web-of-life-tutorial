@@ -1,0 +1,17 @@
+---
+  output: html_document
+---
+  
+```{r setup-05, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(warning=FALSE)
+knitr::opts_chunk$set(message=FALSE)
+
+```
+# Reproducibility issues
+
+The <a href="https://www.web-of-life.es" target="_blank">Web of life</a> is updated continuously: New networks are added and possible errors in existing datasets are amended (mostly thanks to users' notifications).  
+Following the approach described in this tutorial, users will always get the most up-to-date data. This is generally a positive feature. 
+It may, however, pose some *reproducibilty* issues when a study that relies on data downloaded from <a href="https://www.web-of-life.es" target="_blank">Web of life</a> is published. In this specific case, we recommend the authors the save the raw data into one or more files so that their study will be fully reproducible, even if data in <a href="https://www.web-of-life.es" target="_blank">Web of life</a> gets updated.  
+
+

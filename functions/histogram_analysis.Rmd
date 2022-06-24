@@ -1,0 +1,69 @@
+---
+title: "Indices histograms of ecological Networks in web-of-life"
+#author: "Alessandro Vindigni"
+date: "28/06/2022"
+output: 
+  html_document:
+  df_print: paged
+theme: journal
+pdf_document: 
+  latex_engine: xelatex
+header-includes:
+- \usepackage{fontspec}
+- \usepackage{wrapfig}
+- \setmainfont{Arial}
+- \usepackage[fontsize=12pt]{scrextend}
+- \usepackage[labelfont=bf]{caption}
+- \pagenumbering{gobble}
+- \usepackage{booktabs}
+- \usepackage{sectsty} \sectionfont{\centering \emph}
+- \usepackage{tcolorbox}
+---
+
+  
+```{r setup, include=FALSE}
+library(formattable)
+library(dplyr)
+library(data.table)
+library(ggplot2)
+
+
+path = "~/web-of-life-tutorial/data/"
+file_name_mod = "modularity_2022-06-24"
+file_name_nest = "nestedness_2022-06-21"
+file_name_conn = "connectance"
+
+connectance_df <- read.csv(file = paste0(path, file_name_conn,".csv"))
+colnames(connectance_df)[1] <- "id"
+connectance_df <- mutate(connectance_df, 
+                         network_type =  str_sub(connectance_df$network_name, start = 1L, end = 4L)) 
+
+nestedness_df <- read.csv(file = paste0(path, file_name_nest,".csv"))
+colnames(nestedness_df)[1] <- "id"
+nestedness_df <- mutate(nestedness_df, 
+                        network_type =  str_sub(nestedness_df$network_name, start = 1L, end = 4L)) 
+
+modularity_df <- read.csv(file = paste0(path, file_name_mod,".csv"))
+colnames(modularity_df)[1] <- "id"
+modularity_df <- mutate(modularity_df, 
+                        network_type =  str_sub(modularity_df$network_name, start = 1L, end = 4L)) 
+
+```
+
+```{r} 
+nestedness_df %>% formattable()
+```
+
+```{r} 
+connectance_df %>% formattable()
+```
+
+```{r} 
+modularity_df %>% formattable()
+```
+
+```{r} 
+
+ggplot(modularity_df, aes(x=modularity_fast_greedy, color=network_type, fill=network_type)) +
+  geom_density(alpha = 0.2) + xlim(0, 1)  # alpha is the fill transparency
+```

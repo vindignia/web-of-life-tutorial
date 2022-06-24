@@ -45,7 +45,7 @@ for (nw_name in nw_names$network_name){
                                resources_num, 
                                consumers_num, 
                                conn,
-                               nw_prop_bipartite["connectance"])
+                               nw_prop_bipartite[["connectance"]])
   
   connectance_df <- rbind(connectance_df, connectance_row)
   

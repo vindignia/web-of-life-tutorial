@@ -11,6 +11,9 @@ file_name = "nestedness_2022-06-21"
 nestedness_df <- read.csv(file = paste0(path, file_name,".csv"))
 colnames(nestedness_df)[1] <- "id"
 
+nestedness_df <- mutate(nestedness_df, 
+                        network_type =  str_sub(nestedness_df$network_name, start = 1L, end = 4L)) 
+
 nestedness_df %>% formattable()
 
 options(repr.plot.width=5, repr.plot.height=4)
@@ -79,6 +82,18 @@ ggplot() +
   xlim(0,200)
 
 
-# Hystogram 
+###################################################
+# HISTOGRAMS NESTEDNESS VALUES
+# tutorial https://www.youtube.com/watch?v=FzfE8tfbpvQ
+# counts 
+ggplot(nestedness_df, aes(x=nestedness_bascompte, color=network_type, fill=network_type)) +
+  #  geom_histogram(freq = TRUE, breaks = seq(0,1,0.05), fill="lightgreen")  
+  geom_density(alpha = 0.2) + xlim(0, 1)  # alpha is the fill transparency
 
+ggplot(nestedness_df, aes(x=nestedness_weighted, color=network_type, fill=network_type)) +
+  #  geom_histogram(freq = TRUE, breaks = seq(0,1,0.05), fill="lightgreen")  
+  geom_density(alpha = 0.2) + xlim(0, 1)  # alpha is the fill transparency
 
+ggplot(nestedness_df, aes(x=nestedness_temperature, color=network_type, fill=network_type)) +
+  #  geom_histogram(freq = TRUE, breaks = seq(0,1,0.05), fill="lightgreen")  
+  geom_density(alpha = 0.2) #+ xlim(0, 1) 
