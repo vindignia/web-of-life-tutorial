@@ -1,13 +1,7 @@
----
-output: html_document
----
-
-```{r setup-06, include=FALSE}
 library(formattable)
 library(dplyr)
 library(data.table)
 library(ggplot2)
-library(stringr)
 
 source("./functions/helper.R")
 
@@ -32,13 +26,7 @@ colnames(modularity_df)[1] <- "id"
 modularity_df <- mutate(modularity_df, 
                         network_type =  str_sub(modularity_df$network_name, start = 1L, end = 4L)) 
 
-```
-
-
-# Indices of ecological networks in Web of Life 
-
-## Check the actual size of our samples 
-```{r}
+# check the actual size of our samples 
 type_list <- distinct(nestedness_df,network_type)$network_type 
 networks_per_type <- NULL 
 for(nw_type in type_list){
@@ -48,95 +36,18 @@ for(nw_type in type_list){
 rownames(networks_per_type) <- NULL 
 colnames(networks_per_type) <- NULL
 colnames(networks_per_type) <- c("network_type", "count")
-networks_per_type 
-```
+networks_per_type
 
-We restrict our analysis to types for which we have a sizable amount of networks. 
- 
-```{r} 
+
 analyzed_type_list <- c("A_HP","M_PL","M_SD")
 
 nestedness_df <- filter(nestedness_df, network_type %in% analyzed_type_list)
 connectance_df <- filter(connectance_df, network_type %in% analyzed_type_list)
 modularity_df <- filter(modularity_df, network_type %in% analyzed_type_list)
-```
 
-To visualize the dataframes run  
-```{r, eval =FALSE} 
-nestedness_df %>% formattable()
-```
-
-```{r, eval =FALSE} 
-connectance_df %>% formattable()
-```
-
-```{r, eval =FALSE} 
-modularity_df %>% formattable()
-```
-## Network size 
-```{r}
-ggplot(nestedness_df, aes(x=(num_resources+num_consumers), color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + 
-  xlab("network size") + 
-  xlim(0, 500)  # alpha is the fill transparency
-```
-
-aspect ratio **resources/consumers** 
-```{r}
-ggplot(nestedness_df, aes(x=network_size_ratio, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlab("resources/consumers")
-```
-
-## Connectance
-```{r} 
-ggplot(connectance_df, aes(x=connectance, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlim(0, 1)  # alpha is the fill transparency
-```
-
-## Nestedness 
-```{r} 
-ggplot(nestedness_df, aes(x=nestedness_bascompte, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlim(0, 1) 
-```
-
-```{r} 
-ggplot(nestedness_df, aes(x=nestedness_weighted, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlim(0, 1) 
-```
-
-```{r} 
-ggplot(nestedness_df, aes(x=nestedness_temperature, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) 
-```
-
-## Modularity 
-```{r} 
-ggplot(modularity_df, aes(x=modularity_fast_greedy, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlim(0, 1)  # alpha is the fill transparency
-```
-
-
-```{r} 
-ggplot(modularity_df, aes(x=modularity_edge_betweenness, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlim(0, 1)  
-```
-
-
-```{r} 
-ggplot(modularity_df, aes(x=modularity_leading_eigen, color=network_type, fill=network_type)) +
-  geom_density(alpha = 0.2) + xlim(0, 1)  
-```
-
-
-## Correlations 
-
-We build a dataframe with all the relevant indices 
-```{r}
-analyzed_type_list <- c("A_HP","M_PL","M_SD")
-
-nestedness_df <- filter(nestedness_df, network_type %in% analyzed_type_list)
-connectance_df <- filter(connectance_df, network_type %in% analyzed_type_list)
-modularity_df <- filter(modularity_df, network_type %in% analyzed_type_list)
+# nestedness_df %>% formattable()
+# connectance_df %>% formattable()
+# modularity_df %>% formattable()
 
 
 df <- nestedness_df %>% inner_join(.,connectance_df,  by = c("network_name" = "network_name")) %>% 
@@ -156,12 +67,15 @@ df <- nestedness_df %>% inner_join(.,connectance_df,  by = c("network_name" = "n
          "network_type")  %>% 
   rename(num_resources = num_resources.x,        
          num_consumers = num_consumers.x)
-```
+
+dim(df)
+df %>% formattable()
 
 
+############### CORRELATIONS ##############
 
-**Connectance vs network size aspect ratio**
-```{r}
+# Connectance vs NW size aspect ratio
+
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   #ggtitle("correlations") +
@@ -169,10 +83,9 @@ ggplot() +
   labs(x = "resources/consumers", 
        y = "connectance") +
   xlim(0, 1)
-```
 
-**Connectance vs network size** 
-```{r}
+
+# Connectance vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=connectance, color=network_type), shape=1) +
@@ -182,11 +95,9 @@ ggplot() +
   ylim(0, 1) + 
   scale_x_continuous(trans='log10') +
   scale_y_continuous(trans='log10') 
-```
- 
- 
-**nestedness_bascompte vs NW size**
-```{r}
+
+# NESTEDNESS
+# Nestedness bascompte vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=nestedness_bascompte, color=network_type), shape=1) +
@@ -196,10 +107,9 @@ ggplot() +
   ylim(0, 1) + 
   scale_x_continuous(trans='log10') +
   scale_y_continuous(trans='log10') 
-```
 
-**nestedness_weighted vs NW size**
-```{r}
+
+# nestedness_weighted vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=nestedness_weighted, color=network_type), shape=1) +
@@ -208,12 +118,9 @@ ggplot() +
        y = "nestedness_weighted") +
   scale_x_continuous(trans='log10') +
   scale_y_continuous(trans='log10') 
-```
 
 
-**nestedness_temperature vs NW size**
-The qualitative behavior should be the opposite w.r.t. `nestedness_bascompte` because $T=0$ corresponds ot a perfectly nested network (**Acthung**: not observed!). 
-```{r}
+# nestedness_temperature vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=nestedness_temperature, color=network_type), shape=1) +
@@ -222,11 +129,10 @@ ggplot() +
        y = "nestedness_temperature") +
   scale_x_continuous(trans='log10') +
   scale_y_continuous(trans='log10') 
-```
 
 
-**modularity_fast_greedy	vs NW size**
-```{r}
+# MODULARITY  
+# modularity_fast_greedy	vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=modularity_fast_greedy, color=network_type), shape=1) +
@@ -234,10 +140,9 @@ ggplot() +
        y = "modularity_fast_greedy") +
   ylim(0, 1) + 
   scale_x_continuous(trans='log10') 
-``` 
 
-**modularity_edge_betweenness vs NW size**
-```{r}
+
+# modularity_edge_betweenness vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=modularity_edge_betweenness, color=network_type), shape=1) +
@@ -245,10 +150,9 @@ ggplot() +
        y = "modularity_edge_betweenness") +
   ylim(0, 1) + 
   scale_x_continuous(trans='log10') 
-```
 
-**modularity_leading_eigen vs NW size**
-```{r}
+
+# modularity_leading_eigen vs NW size
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=(num_resources+num_consumers), y=modularity_leading_eigen, color=network_type), shape=1) +
@@ -256,11 +160,12 @@ ggplot() +
        y = "modularity_leading_eigen") +
   ylim(0, 1) + 
   scale_x_continuous(trans='log10') 
-```
 
-**nestedness_bascompte vs connectance**
-Probably, the apparent strong correlation is due to the fact that both quantities depend on the network size. 
-```{r}
+
+
+# CROSS correlations 
+
+# nestedness_bascompte vs connectance
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=connectance, y=nestedness_bascompte, color=network_type), shape=1) +
@@ -268,25 +173,22 @@ ggplot() +
   labs(x = "connectance", 
        y = "nestedness_bascompte") + 
   xlim(0, 1) + ylim(0, 1) 
-```
 
-**modularity_leading_eigen  vs connectance**
-```{r}
+
+# modularity_leading_eigen  vs connectance
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=connectance, y=modularity_leading_eigen, color=network_type), shape=1) +
   labs(x = "connectance", 
        y = "modularity_leading_eigen") +
   xlim(0, 1) + ylim(0, 1) 
-```
 
-**modularity_leading_eigen  vs nestedness_bascompte**
-```{r}
+
+# modularity_leading_eigen  vs nestedness_bascompte
 options(repr.plot.width=5, repr.plot.height=4)
 ggplot() +
   geom_point(data =  df, aes(x=nestedness_bascompte, y=modularity_leading_eigen, color=network_type), shape=1) +
   labs(x = "nestedness_bascompte", 
        y = "modularity_leading_eigen") +
   xlim(0, 1) + ylim(0, 1) 
-```
 
