@@ -15,7 +15,7 @@ library(data.table)
 The 
 <a href="https://cran.r-project.org/web/packages/bipartite/bipartite.pdf" target="_blank">bipartite</a> package offers several powerful tools for the analysis of 
 bipartite networks. 
-As preliminary step to integrate <a href="https://www.web-of-life.es" target="_blank">Web of life</a> with this package one needs to convert  network data into a bipartite graph (see Section \@ref(bipartite-nw-02)).  <br>
+As a preliminary step to integrate <a href="https://www.web-of-life.es" target="_blank">Web of life</a> with this package, one needs to convert  network data into a bipartite graph (see Section \@ref(bipartite-nw-02)).  <br>
 For instance, after having downloaded and converted the relative data into an incidence matrix, one can visualize the network **M_SD_002** using the function `plotweb()` the bipartite package:  
 ```{r}
 # import the bipartite package (if not done at the beginning) 
@@ -35,7 +35,7 @@ visweb(inc_matrix)
  
 Among other network properties, some indices characterizing an entire network can be computed calling the function `networklevel()` of the 
 <a href="https://cran.r-project.org/web/packages/bipartite/bipartite.pdf" target="_blank">bipartite</a> package. 
-Here we just focus on *connectance*, *nestedness temperature*, and *modularity*. 
+Here we just focus on the *connectance*. 
 
 
 The definition of connectance given at the beginning of  Chapter \@ref(connectance-03) can be generalized to any bipartite network replacing: 

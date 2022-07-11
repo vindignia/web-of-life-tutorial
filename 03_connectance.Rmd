@@ -39,7 +39,7 @@ We first create a dataframe containing only the distinct network names
 pol_nw_names <- distinct(pol_nws, network_name)
 ```
 
-Now we perform a `for loop` on the network names and compute the connectance and the size of the relative incidence matrix 
+Now we perform a `for loop` on the network names and compute the connectance and the size of the relative incidence matrix for each network
 
 ```{r}
 # initialize dataframe  to store results 
@@ -93,9 +93,11 @@ ggplot() +
 
 ```
 
+The dotted line is a guide to the eye that corresponds to a power-law decay (note the log-log scale). 
+
 ## Filter by latitude  
 
-Making use of the information contained in the metadata, you can filter the networks to analyze according to the latitude and longitude of the location in which the data was collected.       
+Making use of the information contained in the metadata, you can filter the networks by the latitude and longitude of the location in which the data was collected.       
 Assume you would like to display with a different color the connectance of the subset of networks in the tropical area. We start downloading the metadata of all networks in
 <a href="https://www.web-of-life.es" target="_blank">Web of life</a> (see above)
 

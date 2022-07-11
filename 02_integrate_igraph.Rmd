@@ -134,7 +134,7 @@ Several ecologically relevant networks are **bipartite**, that is <br>
 2. species can be split in two groups and interactions occurs only from one group to the other.   
 
 Typical examples are *pollination* or *seed-dispersal* networks. Let us see how these features of bipartite networks affect the way in which their data has to be handled with <a href="https://igraph.org/" target="_blank">igraph</a>.  
-We first  download the seed-dispersal network **M_SD_002** and convert into an igraph object: 
+We first download the seed-dispersal network **M_SD_002** and convert it into an igraph object: 
 ```{r}
 # download the foodweb FW_002
 json_url <- paste0(base_url,"get_networks.php?network_name=M_SD_002")
@@ -161,7 +161,7 @@ This list can be used to split the nodes of the graph **M_SD_002_graph** into tw
 V(M_SD_002_graph)$type <- !(isResource) 
 ```
 
-When representing a graph -- **M_SD_002_graph** in this case -- as an **incidence** matrix, we will adopt the convention that resources be associated with rows. These species are label with `is.resource=TRUE`. Instead, `igraph` displays as rows of the **incidence** matrix nodes with the attribute `type=FALSE`. For this reason, we applied the negation operator `!()` in the previous chuck.  
+When representing a graph -- **M_SD_002_graph** in this case -- as an **incidence** matrix, we will adopt the convention that resources be associated with rows. These species are label with `is.resource=TRUE`. Instead, `igraph` displays as rows of the **incidence** matrix nodes with the attribute `type=FALSE`. For this reason, we applied the negation operator `!()` in the previous chunk.  
 
 One can also check that the igraph object was successfully converted into a bipartite graph running the following command  
 ```{r}

@@ -25,9 +25,9 @@ Networks are named according to the following convention
 
 ## Download one network  
 
-In a research projects it is often convenient to bypass the web interface and store data directly in a dataframe using a command line. This has several advantages in terms of efficiency and reproducibility of the analysis you are conducting. We will see how to do this in `R` using the function `fromJSON()` of the package  `jsonlite`, but similar commands can be run in `python` or in other languages. To this aim, we have opened few dedicated endpoints on the Application Programming Interface (API) of the  web-of-life project. 
+In a research projects it is often convenient to bypass the web interface and store data directly in a dataframe using a command line. This has several advantages in terms of efficiency and reproducibility of the analysis you are conducting. We will see how to do this in `R` using the function `fromJSON()` of the package  `jsonlite`, but similar commands can be run in `python` or in other languages. To this aim, we have opened a few dedicated endpoints on the Application Programming Interface (API) of the  web-of-life project. 
 
-Let us focus on the network number **002** of the **Seed Dispersal** type, named **M_SD_002**: the set fo commands to download it are
+Let us focus on the network number **002** of the **Seed Dispersal** type, named **M_SD_002**: the set of commands to download it are
 ```{r}
 # define the base url
 base_url <- "https://www.web-of-life.es/"     
@@ -38,7 +38,7 @@ library(rjson)
 # and run it 
 SD_002_nw <- jsonlite::fromJSON(json_url)
 ```
-It is always good practice to have a look at the class  of a newly defined object (dataframe) and display its first rows to understand how this data looks like, number of columns, their names, etc. 
+It is good practice to have a look at the class  of a newly defined object (dataframe) and display its first rows to understand how this data looks like, number of columns, their names, etc. 
 ```{r}
 # check the class 
 class(SD_002_nw)
