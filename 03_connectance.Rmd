@@ -15,9 +15,10 @@ source("./functions/helper.R")
 The **connectance** is one of the properties characterizing a network and is defined as the ratio between the actual number of links (i.e. pairwise interactions among species) and the maximal number of links that could be realized in that type of network. 
 For a bipartite network at most all the species of one group (e.g. plants) can interact with all the species of the other group (e.g. animals). Let us focus on pollination networks for which the connectance is defined as 
 \begin{equation}
-\frac{\# \, links}{(\# \, plants) \times (\# animals)} \,.
+\frac{n_l}{n_p \times n_a} \,.
 \end{equation}
-(The definition of connectance for a foodweb will be discussed later on).
+
+where $n_p$ ($n_a$) is the number plants (animals) in the network and $n_l$ is the number of links. <br> (The definition of connectance for a foodweb will be discussed later on).
 
 ## From an edge list  
 
@@ -69,7 +70,7 @@ You can visualize the results as usual:
 pol_connectance_df %>% formattable()  
 ```
 
-**ACHTUNG:** The <a href="https://www.web-of-life.es" target="_blank">Web of life</a> API returns a dataframe in which only meaningful values for the `connection_strength` are given. Generally, it will be wise to check if all interaction values are non-vanishing and possibly filter out from the edge list the rows corresponding to vanishing or NA `connection_strength`. In pseudo code, this is done as follows 
+**CAREFUL:** The <a href="https://www.web-of-life.es" target="_blank">Web of life</a> API returns a dataframe in which only meaningful values for the `connection_strength` are given. Generally, it will be wise to check if all interaction values are non-vanishing and possibly filter out from the edge list the rows corresponding to vanishing or NA `connection_strength`. In pseudo code, this is done as follows 
 ```
 pol_nws_good <- filter(pol_nws, connection_strength > 0) %>% 
   filter(., !is.na(connection_strength)) 
@@ -87,7 +88,7 @@ ggplot() +
   stat_function(fun = function(x) power_decay(x,4.8,0.5), color ="black", linetype = "dotted") +
   geom_point(data = pol_connectance_df, aes(size, connectance), color = "purple", shape=1) +
   labs(x = "Incidence matrix size", 
-       y = "Network connectance") +
+       y = "Connectance") +
   scale_x_continuous(trans='log10') +
   scale_y_continuous(trans='log10') 
 
@@ -128,7 +129,7 @@ ggplot() +
   geom_point(data = pol_connectance_df, aes(size, connectance), color = "purple", shape=1) +
   geom_point(data = tropical_pol_conn_df, aes(size, connectance), color = "dark orange") +
   labs(x = "Incidence matrix size", 
-       y = "Network connectance") +
+       y = "Connectance") +
   scale_x_continuous(trans='log10') +
   scale_y_continuous(trans='log10') 
 ```
@@ -138,9 +139,9 @@ ggplot() +
 
 For foodwebs the **connectance** is defined as 
 \begin{equation}
-\frac{2 \times (\# \, links)}{N \times (N-1)} 
+\frac{2 \times n_l}{N \times (N-1)} 
 \end{equation}
-where $N$ is the size of the adjacency matrix associated with the foodweb. Referring to the example given in section \@ref(adjacency-fw-02) and relative commands, the connectance of the foodweb  **FW_002** is obtained as  
+where $N$ is the number of species in the foodweb and $n_l$ is the number of links. Referring to the example given in section \@ref(adjacency-fw-02) and relative commands, the connectance of the foodweb  **FW_002** is obtained as  
 ```{r}
 links <- FW_002_nw %>% nrow() 
 size <- nrow(adj_matrix)

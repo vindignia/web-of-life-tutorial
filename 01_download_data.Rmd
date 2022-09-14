@@ -13,7 +13,7 @@ source("./functions/helper.R")
 # Download network data {#session-download-data}
 
 This <a href="https://www.web-of-life.es" target="_blank">web interface</a> provides a visualization of where data of a given network have been collected over the globe. 
-Clicking the the dot corresponding to a network, the relative metadata can be visualized as well as a 3D representation of the network. 
+Clicking the the dot corresponding to a network, the relative metadata can be visualized both as 2D and 3D representation of the network. 
 The incidence matrix is also displayed and can be downloaded in different formats.  
 Networks are named according to the following convention 
 <!-- specifications are contained within the name of each network -->
