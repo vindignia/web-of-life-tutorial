@@ -209,3 +209,11 @@ edge_list_bin_from_matrix_df <- function(df)
   
   return(edge_list_bin)
 }
+
+
+compute_overlap <- function(M1, M2){
+  overlap_mat <- (M1 == M2)
+  class(overlap_mat) <- "numeric"  
+  overlap_deg <- sum(overlap_mat)/(nrow(M1)*ncol(M1))
+  return(overlap_deg)
+}

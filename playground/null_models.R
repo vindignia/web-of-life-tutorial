@@ -33,14 +33,12 @@ create_indexes <- function(nr, nc) {
   j2 <- pbc(rr, j1, nc)
   index3 <- index_from_row_col(i1, j2, nc) # 3rd index
   index4 <- index_from_row_col(i2, j2, nc) # 4th index
-
+  
   return(c(index1,index2,index3,index4))
 }
 
 
-swap_model_ale = function(M_in, iter_max){
-  
-  # binirize the matrix M_in => see nestedness used in the report !!!  
+swap_model = function(M_in, iter_max){
   
   M <- M_in 
   nr <- nrow(M) # number of rows
@@ -48,19 +46,20 @@ swap_model_ale = function(M_in, iter_max){
   
   for(iter in 1:iter_max){
     
-    if (iter %% 500 == 0) print(paste0("iter = ", iter))
+    # binarize M into a logical matrix
+    B <- as.matrix((M>0))  
     
-    # flatten matrix with row-major order 
-    M_vec <- as.vector(t(M))
+    # flatten logical matrix with row-major order 
+    M_vec <- as.vector(t(B))
     
-    allZeros <- 0 
-    while (allZeros == 0){
-      # print("all zeros")
-      indexes <- create_indexes(nr, nc)
+    allEqual <- TRUE
+    while (allEqual == TRUE){
+      indexes <- create_indexes(n, m)
       sub_vec <- M_vec[indexes]
-      allZeros <- sum(sub_vec)
+      allEqual <- xor(all(sub_vec), all(!(sub_vec)))
+      # if(allEqual)print("all element of the sub-matrix are equal")
     }
-
+    
     # shaffle indexes till all positions are swapped 
     fullRND <- FALSE
     while (fullRND == FALSE){
@@ -72,7 +71,26 @@ swap_model_ale = function(M_in, iter_max){
     M_swap <- matrix(M_vec, nrow=nr, ncol=nc, byrow=TRUE) # back to matrix  
     
     M <- M_swap
+    class(M_swap) <- "numeric"
   }
   
   return(M_swap)
 } 
+
+
+null_model <- function(M_in, iter_max = ncol(M_in)*nrow(M_in), type=NULL){
+  if(is.null(type)){
+    stop("No type argument assigned for the null model. Please choose one from the list: \"swap\", \"equifrequent\", \"cell\"")
+  } else {
+    if (type == "swap"){
+      M_out <- swap_model(M_in, iter_max)
+    } else if (type == "equifrequent") {
+      M_out <- M_in
+      stop("Sorry, the equifrequent null model has not been implemented yet")
+    }  else if (type == "cell") {
+      M_out <- M_in
+      stop("Sorry, the cell null model has not been implemented yet")
+    }
+  }
+  return(M_out) 
+}
