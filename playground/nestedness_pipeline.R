@@ -59,13 +59,32 @@ for (i in seq(1,2000,50)){
 
 df %>% formattable()
 
+overlap_leg <- data.frame(
+  x = 250,
+  y = 0.9,
+  label = "overlap"
+)
+
+nestedness_leg <- data.frame(
+  x = 120,
+  y = 0.6,
+  label = "nestedness"
+)
+
+
 ggplot() +
-  ggtitle(paste0("swap model efficiency M with ", round(values_fraction,3), " non-zero el.")) +
+  ggtitle(paste0("perfectly nested M with ", round(values_fraction,3), " non-zero el. (swap null)")) +
   geom_point(data = df, aes(iter, overlap), color = "blue", shape=1, size=1.5) +
   geom_point(data = df, aes(iter, nestedness), color = "dark red", shape=1, size=1.5) +
   geom_line(data = df, aes(iter, 2*v_fraction-1), color = "black", size=0.6) +
   # geom_line(data = df, aes(iter, 1. - v_fraction), color = "grey", size=0.6) +
-  labs(x = "iter", y = "overlap") + ylim(0,1)
+  geom_text(data=overlap_leg, aes( x=x, y=y, label=label),
+            color="blue",
+            size=4 , angle=0) + 
+  geom_text(data=nestedness_leg, aes( x=x, y=y, label=label),
+            color="dark red",
+            size=4 , angle=0) + 
+  labs(x = "iter", y = "overlap, nestedness") + ylim(0,1)
 
 #VISUALIZATION:  
 # NM <- perfect_nested(n,m)

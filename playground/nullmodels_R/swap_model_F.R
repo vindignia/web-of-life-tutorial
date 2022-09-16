@@ -1,6 +1,6 @@
 # Code for the swap null model
 
-swap_model = function(d,iter_max){
+swap_model_F = function(d,iter_max){
 
   # Make sure we are working with a matrix
   d = as.matrix(d)
