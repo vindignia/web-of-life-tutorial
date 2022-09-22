@@ -8,6 +8,7 @@ _book/
 _bookdown_files/
 data/
 playground/histograms_files/
+playground/nullmodels_R/03-24_null_models_data/
 packages.bib
 *html
 *log
