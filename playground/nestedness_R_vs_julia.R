@@ -5,9 +5,13 @@ library(rjson)
 library(rbenchmark)
 library("JuliaCall")
 julia <- julia_setup()
+library(Rcpp)
+
 
 setwd("/home/alessandro/web-of-life-tutorial/playground") 
 julia_source("nestedness.jl")
+sourceCpp("nestedness.cpp")
+
 
 # LOAD EXTERNAL PACKAGES
 # PACKAGE FROM bascompte-lab github 
@@ -19,8 +23,8 @@ library(weboflife)
 args = commandArgs(trailingOnly=TRUE)
 
 
-n <- 347 # number of rows
-m <- 423 # number of columns 
+n <- 4 # number of rows
+m <- 3 # number of columns 
 M <- matrix(0,n,m)
 
 for(i in 1:n){
@@ -32,9 +36,18 @@ for(i in 1:n){
 }
 print("matrix dimensions")
 dim(M)
+M
+sourceCpp("nestedness.cpp")
+nestednessCpp(M)
+
+source("nestedness_wol.R")
+nestedness_wol(M)
 
 # julia_source("nestedness.jl")
 # julia_call("nestedness",M)
+
+
+
 
 
 
