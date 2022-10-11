@@ -5,6 +5,8 @@ library(formattable)
 library(ggplot2)
 library(permute)
 #library(plot.matrix)
+#library("JuliaCall")
+#julia <- julia_setup()
 
 setwd("/home/alessandro/web-of-life-tutorial/playground") 
 # source("../functions/compute_nestedness.R")
@@ -17,17 +19,29 @@ remove.packages("weboflife")
 devtools::install_github("bascompte-lab/weboflife", force=TRUE)
 library(weboflife)
 
-n <- 40 # number of rows
-m <- 30 # number of columns 
+
+n <- 371 # number of rows
+m <- 427 # number of columns 
 M <- matrix(0,n,m)
 
 for(i in 1:n){
   for (j in 1:m){
-    M[i,j] <- floor(runif(1, min = 0, max = 1.2)) # binary sparse
+    #M[i,j] <- floor(runif(1, min = 0, max = 1.2)) # binary sparse
+    M[i,j] <- runif(1, min = 0, max = 1.2)
+    M[i,j] <- if(M[i,j]>0.6) M[i,j] else 0.
   }
 }
+dim(M)
 
+#values_fraction 
+#sum(M)/(nrow(M)*ncol(M))
 weboflife::nestedness(M)
+weboflife::nestedness_julia(M)
+
+# JULIA 
+#julia_source("nestedness.jl")
+#julia_call("nestedness",M)
+
 
 # Perfectly nested 
 NM <- perfect_nested(n,m)
@@ -86,9 +100,9 @@ ggplot() +
   ggtitle(paste0("perfectly nested M with ", round(values_fraction,3), " non-zero el. (swap null)")) +
   geom_point(data = df, aes(iter, overlap_equif), color = "blue", shape=2, size=1.5) +
   geom_point(data = df, aes(iter, nest_equif), color = "dark red", shape=2, size=1.5) +
-  #
-  geom_point(data = df, aes(iter, overlap_cell), color = "blue", shape=3, size=1.5) +
-  geom_point(data = df, aes(iter, nest_cell), color = "dark red", shape=3, size=1.5) +
+  # #
+  # geom_point(data = df, aes(iter, overlap_cell), color = "blue", shape=3, size=1.5) +
+  # geom_point(data = df, aes(iter, nest_cell), color = "dark red", shape=3, size=1.5) +
   #
   geom_point(data = df, aes(iter, overlap_swap), color = "blue", shape=1, size=1.5) +
   geom_point(data = df, aes(iter, nest_swap), color = "dark red", shape=1, size=1.5) +
@@ -132,6 +146,15 @@ z_equif <- (nestedness_in - mean(nest_df$nest_equif))/sd(nest_df$nest_equif)
 z_cell <- (nestedness_in - mean(nest_df$nest_cell))/sd(nest_df$nest_cell)
 z_swap <- (nestedness_in - mean(nest_df$nest_swap))/sd(nest_df$nest_swap)
 
+df_z <- data.frame(z_equif, z_cell, z_swap)
+
+# Compute associated p value 
+df_p_val <-data.frame(pnorm(z_equif, lower.tail = FALSE),
+                      pnorm(z_cell, lower.tail = FALSE),
+                      pnorm(z_swap, lower.tail = FALSE))
+
+# Print p value
+print(p_val)
 
 #Fernando 
 
