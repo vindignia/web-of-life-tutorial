@@ -51,8 +51,6 @@ nestedness_wol <- function(M){
   # Compute nestedness of the network
   nestedness_val <- (nestedness_rows + nestedness_cols) / ((nrows * (nrows - 1) / 2) + (ncols * (ncols - 1) / 2))
   
-  # ACHTUNG!!!
-  # return(nestedness_val)
-  return(nestedness_rows)
+  return(nestedness_val)
 }
 

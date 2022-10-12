@@ -23,8 +23,8 @@ library(weboflife)
 args = commandArgs(trailingOnly=TRUE)
 
 
-n <- 4 # number of rows
-m <- 3 # number of columns 
+n <- 452 # number of rows
+m <- 785 # number of columns 
 M <- matrix(0,n,m)
 
 for(i in 1:n){
