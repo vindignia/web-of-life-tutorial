@@ -3,6 +3,7 @@
 #include <numeric>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 using namespace std;
 using namespace Rcpp; 
 
@@ -11,22 +12,6 @@ using namespace Rcpp;
 # Fortuna, M.A., et al.: Coevolutionary dynamics shape the structure of bacteria‐phage infection networks. Evolution 1001-1011 (2019). 
 # DOI 10.1111/evo.13731
  */
-
-int arraySum(IntegerVector & v){
-  int sum = 0;
-  for(int i = 0; i < v.size(); i++){
-    sum += v[i];
-  }
-  return sum;
-}
-
-int scalarProd(IntegerVector & v, IntegerVector & w){
-  int sum = 0;
-  for(int i = 0; i < v.size(); i++){
-    sum += v[i]*w[i];
-  }
-  return sum;
-}
 
 // [[Rcpp::export]]
 double nestednessCpp(const NumericMatrix & M) {
@@ -50,34 +35,23 @@ double nestednessCpp(const NumericMatrix & M) {
   for(int i = 0; i < (nr-1); i++) {
     j = i + 1;
     while (j < nr) {
-      
       IntegerVector v_i = B( i , _ );
       IntegerVector v_j = B( j , _ );
-      // IMPLEMENT 
-      // k_i = sum(B[i,:])
-      // k_j = sum(B[j,:])
       
-      // more elegant alternative NOT WORKING 
-      //int arr[] = { 2, 5, 7, 8, 2, 6, 9 };
-      //int k_i = 0;
-      //k_i = accumulate(arr, arr + nc, 0, std::plus<int>());
+      int k_i = accumulate(v_i.begin(), v_i.end(), 0);
+      int k_j = accumulate(v_j.begin(), v_j.end(), 0);
       
-      int k_i = arraySum(v_i);
-      int k_j = arraySum(v_j);
-      
-      // IMPLEMENT 
-      // shared=sum(B[i,:].*B[j,:]) // sum of common interactions
-      int shared = scalarProd(v_i,v_j); 
-      
+      int shared = inner_product(v_i.begin(), v_i.end(), v_j.begin(), 0);
       
       // handle disconnected nodes 
       if (!((k_i == 0) || (k_j==0))){
-        int min_shared = min(k_i,k_j); // min of the degrees
+        int min_shared = min(k_i, k_j); // min of the degrees
         nestedness_rows = nestedness_rows + (1.0*shared/min_shared);
       }
-      j = j + 1;
+      j++;
     } // end while iterator
   } //   end for loop 
+  
   
   // nestedness of columns
   double nestedness_cols = 0;
@@ -87,23 +61,18 @@ double nestednessCpp(const NumericMatrix & M) {
       
       IntegerVector v_i = B( _ , i );
       IntegerVector v_j = B( _ , j );
-      // IMPLEMENT 
-      // k_i <- sum(B[,i])    
-      // k_j <- sum(B[,j])  
       
-      int k_i = arraySum(v_i);
-      int k_j = arraySum(v_j);
+      int k_i = accumulate(v_i.begin(), v_i.end(), 0);
+      int k_j = accumulate(v_j.begin(), v_j.end(), 0);
       
-      // IMPLEMENT 
-      //  c_ij <- sum(B[,i] * B[,j])// sum of common interactions
-      int shared = scalarProd(v_i,v_j); 
+      int shared = inner_product(v_i.begin(), v_i.end(), v_j.begin(), 0); 
       
       // handle disconnected nodes 
       if (!((k_i == 0) || (k_j==0))){
-        int min_shared = min(k_i,k_j); // min of the degrees
+        int min_shared = min(k_i, k_j); // min of the degrees
         nestedness_cols = nestedness_cols + (1.0*shared/min_shared);
       }
-      j = j + 1;
+      j++; 
     } // end while iterator
   } //   end for loop 
   

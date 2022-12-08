@@ -4,7 +4,7 @@ library(Rcpp)
 setwd("/home/alessandro/web-of-life-tutorial/playground/call_C_functions_from_R/") 
 sourceCpp("./fibonacci.cpp")
 
-## create the R fucntion to compute the sum of Fibonacci number till n 
+## create the R function to compute the sum of Fibonacci number till n 
 fibR <- function(n) {
   if ((n == 0) | (n == 1)) 
     return(1)
