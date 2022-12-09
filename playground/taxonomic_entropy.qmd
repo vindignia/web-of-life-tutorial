@@ -1,27 +1,165 @@
 ---
-title: "taxonomic_entropy"
+title: "Taxonomic entropy"
 author: "Alessandro Vindigni"
 format: html
 editor: visual
 ---
+```{r setup, include=FALSE}
+#library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+library(tidyverse)
+library(dplyr)
+library (plyr)
+library(formattable)
+library(ggplot2)
+library(conflicted)
+# conflict solver
+conflict_prefer("rename", "dplyr")
+conflict_prefer("filter", "dplyr")
+conflict_prefer("mutate", "dplyr")
+conflict_prefer("arrange", "dplyr")
+#
+setwd("~/Documents/UZH_icloud/tutorial_project/web-of-life-tutorial/playground/")
 
-## Quarto
+#path = "~/web-of-life-tutorial/data/"
+path = "~/Documents/UZH_icloud/tutorial_project/web-of-life-tutorial/data/"
+filename = "species_entropy_2022-12-09.RData"
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+load(file=paste0(path,filename))
 
-## Running Code
-
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
-
-```{r}
-1 + 1
 ```
 
-You can add options to executable code like this
+
+## Definitions 
+
+Let $N_s$ be the total number of species in a database. For a given species $\sigma$ it can happen that it has been identified down to the level of species or subspecies but only up to a certain taxonimic level. 
+In the first case, we set taxonomic uncertainity $n_\sigma$ of the species $\sigma$ equal to 1; otherwise, we count the number of species belonging the the lowest taxonomic level at which that species was resolved and set $n_\sigma$ equal to that number. 
+In formula 
+\begin{equation}
+\begin{cases}
+&n_\sigma = 1  \\
+&n_\sigma = \text{species in the lowest taxonomic level} 
+\end{cases}
+\end{equation}
+In information theory, one would define the **missing taxonomic information** associated with this **species** as 
+\begin{equation}
+I_\sigma = \log(n_\sigma)  
+\end{equation}
+The good aspect of this definition is that the missing information $I_s$ is zero when a species is *fully* resolved and finite otherwise. The maximum value that $I_s$ may take is  $\log(N_s)$, i.e., the logarithm of total number of species in database. Therefore, it seems natural to normalize the missing information to this value and define the **relative species entropy** as 
+\begin{equation}
+s_\sigma =\frac{\log(n_\sigma)}{\log(N_s)}  \,. 
+\end{equation}
+Thanks to the properties of the logarithm the quantity above 
+\begin{equation}
+s_\sigma =\log_{N_s}(n_\sigma) 
+\end{equation}
+(irrespectively of the bases originally used for the logarithm $\log(\dots)$), which is equivalent to defining $s_\sigma$ as 
+\begin{equation}
+n_\sigma = N_s^{s_\sigma} \,. 
+\end{equation}
+Note the meaning of the two extreme value taken by $s_\sigma$ 
+\begin{equation}
+\begin{cases}
+&s_\sigma = 0 \quad  \text{taxonomy fully determined}  \\
+&s_\sigma = 1 \quad  \text{taxonomy fully undetermined} 
+\end{cases}
+\end{equation}
+
+
+Parenthetically, we observe that one could also take as a reference the number of species within a network in place of 
+$N_s$ in which case the **taxonomic entropy** of a given species would be relative to the network and not to the database. It would be interesting to study how such a quantity correlates with the degree of each species within a network of and compare the trend for different networks of the same type (Fernando). 
+
+
+The definition of $s_\sigma$ suffer from a bias. Assume that two species are resolved at the, e.g., `order` level, order1 and order2. If more other species belong to order1 than to order2, $s_\sigma$ will assign less entropy to the second species. 
+To complement this information we can compute the number of levels $n_l$ found for a given level in the database. For instance, while writing $n_l = 198$ different orders  and $N_s = 15'372$ different spices are stored in `weboflife`.  Therefore, we can define the **missing taxonomic information** associated with some **taxonomic level** as 
+\begin{equation}
+I_l = \log(\frac{N_s}{n_l})   
+\end{equation}
+The largest indetermination of a level is when we just know that a species is in the database ($n_l=1$). Therefore, it seems reasonable to normalize this quantity dividing it by $\log(N_s)$ and define the **relative level entropy** as 
+\begin{equation}
+s_l = \frac{\log(\frac{N_s}{n_l})}{\log(N_s)} = 1 - \log_{N_s}(n_l)  \,.
+\end{equation}
+After some elementary algebra one finds that 
+\begin{equation}
+n_l = N_s^{1 -s_l}   \,, 
+\end{equation}
+here the extreme values corresponding to 
+\begin{equation}
+\begin{cases}
+&s_l = 0 \quad  \text{lowest possible taxonomic level (species/subspecies)}  \\
+&s_l = 1 \quad  \text{taxonomic level unknown (the whole database)} \,.
+\end{cases}
+\end{equation}
+
+
+
+## Application to web of life 
+
+### Relative taxonomic entropy of Species   
+  
+Here we report the taxonomic entropy of species stored in `weboflife`, grouped by network type. In the horizontal axis an increasing index labeling different species is reported. However, to facilitate comparison  across different network types we found it convenient to normalize that index to the total number of species appearing in networks of a given type (so that the horizontal axis varies between 0 and 1 in all plots).    
+You will see that both the **species** and the **level** taxonomic entropy defined above correlate well. 
+
 
 ```{r}
 #| echo: false
-2 * 2
+
+df <- filter(species_taxon_entropy_df, networkTypeId==7) %>% 
+  arrange(species_entropy) 
+df <- cbind(df, data.frame(count = 1:nrow(df)))
+FW_df <- df %>% mutate(species_fraction=count/nrow(df)) 
+
+df <- filter(species_taxon_entropy_df, networkTypeId==5) %>% 
+  #select(specieId, specieName, species_entropy, level_entropy) %>%
+  arrange(species_entropy) 
+df <- cbind(df, data.frame(count = 1:nrow(df)))
+PL_df <- df %>% mutate(species_fraction=count/nrow(df)) 
+
+df <- filter(species_taxon_entropy_df, networkTypeId==6) %>% 
+  #select(specieId, specieName, species_entropy, level_entropy) %>%
+  arrange(species_entropy) 
+df <- cbind(df, data.frame(count = 1:nrow(df)))
+SD_df <- df %>% mutate(species_fraction=count/nrow(df)) 
+
+df <- FW_df
+df <- rbind(df, PL_df)
+df <- rbind(df, SD_df)
+df <- df %>% select(specieId, specieName, species_entropy, level_entropy, networkTypeName, count, species_fraction)
+#df <- df %>% rename("network_type" = networkTypeName)
+
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+**Normalized plots** 
+
+```{r}
+# 
+# PL 
+PL_df1 <- PL_df %>% select(species_fraction,species_entropy, level_entropy) %>%  
+  gather(Legend, Entropy, -species_fraction)
+ggplot(PL_df1, aes(x=species_fraction, y=Entropy, fill=Legend)) +
+  geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
+  scale_fill_manual("legend", values = c("species_entropy" = "#1E8449", "level_entropy" = "#9B59B6")) + 
+  ggtitle("Pollination") 
+```
+
+```{r}
+SD_df1 <- SD_df %>% select(species_fraction,species_entropy, level_entropy) %>%  
+  gather(legend, Entropy, -species_fraction)
+ggplot(SD_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
+  geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
+  scale_fill_manual("legend", values = c("species_entropy" = "#2E86C1", "level_entropy" = "#9B59B6")) + 
+  ggtitle("Seed Dispersal") 
+```
+
+
+```{r}
+FW_df1 <- FW_df %>% select(species_fraction,species_entropy, level_entropy) %>%  
+  gather(legend, Entropy, -species_fraction)
+ggplot(FW_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
+  geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
+  scale_fill_manual("legend", values = c("species_entropy" = "#D35400", "level_entropy" = "#9B59B6")) + 
+  ggtitle("Food Webs") 
+```
+
+
