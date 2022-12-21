@@ -75,7 +75,7 @@ select(specieId, specieName, kingdomId, orderId, familyId, taxonResolution, taxo
 colnames(species_taxon_entropy_df)
 
 # save the whole materialized view 
-# mv_species_taxonomy <- tbl(con, "mv_species_taxonomy") 
+# mv_species_taxonomy <- tbl(con, "mv_species_taxonomy") %>% as.data.frame()
 # save(mv_species_taxonomy, file=paste0(path,filename))
 
 #save(species_taxon_entropy_df, file=paste0(path,filename))
