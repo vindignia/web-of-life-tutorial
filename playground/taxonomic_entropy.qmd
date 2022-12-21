@@ -33,8 +33,8 @@ load(file=paste0(path,filename))
 
 ## Definitions 
 
-Let $N_s$ be the total number of species in a database. For a given species $\sigma$ it can happen that it has been identified down to the level of species or subspecies but only up to a certain taxonimic level. 
-In the first case, we set taxonomic uncertainity $n_\sigma$ of the species $\sigma$ equal to 1; otherwise, we count the number of species belonging the the lowest taxonomic level at which that species was resolved and set $n_\sigma$ equal to that number. 
+Let $N_s$ be the total number of species in a database. For a given species $\sigma$ it can happen that it has been identified down to the level of species or subspecies but only up to a certain taxonomic level. 
+In the first case, we set taxonomic uncertainty $n_\sigma$ of the species $\sigma$ equal to 1; otherwise, we count the number of species belonging the the lowest taxonomic level at which that species was resolved and set $n_\sigma$ equal to that number. 
 In formula 
 \begin{equation}
 \begin{cases}
@@ -50,7 +50,7 @@ The good aspect of this definition is that the missing information $I_s$ is zero
 \begin{equation}
 s_\sigma =\frac{\log(n_\sigma)}{\log(N_s)}  \,. 
 \end{equation}
-Thanks to the properties of the logarithm the quantity above 
+Thanks to the properties of the logarithm the quantity above can be rewritten as
 \begin{equation}
 s_\sigma =\log_{N_s}(n_\sigma) 
 \end{equation}
@@ -58,7 +58,7 @@ s_\sigma =\log_{N_s}(n_\sigma)
 \begin{equation}
 n_\sigma = N_s^{s_\sigma} \,. 
 \end{equation}
-Note the meaning of the two extreme value taken by $s_\sigma$ 
+Note the meaning of the two extreme values taken by $s_\sigma$ 
 \begin{equation}
 \begin{cases}
 &s_\sigma = 0 \quad  \text{taxonomy fully determined}  \\
@@ -71,8 +71,8 @@ Parenthetically, we observe that one could also take as a reference the number o
 $N_s$ in which case the **taxonomic entropy** of a given species would be relative to the network and not to the database. It would be interesting to study how such a quantity correlates with the degree of each species within a network of and compare the trend for different networks of the same type (Fernando). 
 
 
-The definition of $s_\sigma$ suffer from a bias. Assume that two species are resolved at the, e.g., `order` level, order1 and order2. If more other species belong to order1 than to order2, $s_\sigma$ will assign less entropy to the second species. 
-To complement this information we can compute the number of levels $n_l$ found for a given level in the database. For instance, while writing $n_l = 198$ different orders  and $N_s = 15'372$ different spices are stored in `weboflife`.  Therefore, we can define the **missing taxonomic information** associated with some **taxonomic level** as 
+The definition of $s_\sigma$ suffer from a bias. Assume that two species are resolved at the, e.g., `order` level, order1 and order2. If more species belong to order1 than to order2, $s_\sigma$ will assign less entropy to the second species. 
+To complement this information we can compute the number of levels $n_l$ found for a given level in the database. For instance, while we are writing these notes, $n_l = 198$ different orders and $N_s = 15'372$ different spices are stored in `weboflife`.  Therefore, we can define the **missing taxonomic information** associated with some **taxonomic level** as 
 \begin{equation}
 I_l = \log(\frac{N_s}{n_l})   
 \end{equation}
