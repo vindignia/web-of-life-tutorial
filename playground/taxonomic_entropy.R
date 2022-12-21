@@ -19,7 +19,7 @@ source('connect_to_DB.R')
 
 #path = "~/web-of-life-tutorial/data/"
 path = "~/Documents/UZH_icloud/tutorial_project/web-of-life-tutorial/data/"
-filename = "species_entropy_2022-12-09.RData"
+filename = "mv_species_taxonomy_2022-12-21.RData"
 
  dbListTables(con)
 
@@ -74,7 +74,11 @@ select(specieId, specieName, kingdomId, orderId, familyId, taxonResolution, taxo
  
 colnames(species_taxon_entropy_df)
 
-save(species_taxon_entropy_df, file=paste0(path,filename))
+# save the whole materialized view 
+# mv_species_taxonomy <- tbl(con, "mv_species_taxonomy") 
+# save(mv_species_taxonomy, file=paste0(path,filename))
+
+#save(species_taxon_entropy_df, file=paste0(path,filename))
 
 
 # Build df for the bar plots 
