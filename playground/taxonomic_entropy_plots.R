@@ -8,14 +8,15 @@ conflict_prefer("filter", "dplyr")
 conflict_prefer("mutate", "dplyr")
 conflict_prefer("arrange", "dplyr")
 #
+
 setwd("~/web-of-life-tutorial/playground/")
 #setwd("~/Documents/UZH_icloud/tutorial_project/web-of-life-tutorial/playground/")
+
 path = "~/web-of-life-tutorial/data/"
 #path = "~/Documents/UZH_icloud/tutorial_project/web-of-life-tutorial/data/"
 filename = "species_entropy_2022-12-09.RData"
 
 load(file=paste0(path,filename))
-
 
 df <- filter(species_taxon_entropy_df, networkTypeId==7) %>% 
   arrange(species_entropy) 
@@ -39,7 +40,6 @@ df <- rbind(df, PL_df)
 df <- rbind(df, SD_df)
 df <- df %>% select(specieId, specieName, species_entropy, level_entropy, networkTypeName, count, species_fraction)
 
-# Normalized plots 
 
 # 
 # PL 
@@ -51,6 +51,7 @@ ggplot(PL_df1, aes(x=species_fraction, y=Entropy, fill=Legend)) +
   ggtitle("Pollination") 
 
 
+# SD
 SD_df1 <- SD_df %>% select(species_fraction,species_entropy, level_entropy) %>%  
   gather(legend, Entropy, -species_fraction)
 ggplot(SD_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
@@ -58,9 +59,12 @@ ggplot(SD_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
   scale_fill_manual("legend", values = c("species_entropy" = "#2E86C1", "level_entropy" = "#9B59B6")) + 
   ggtitle("Seed Dispersal") 
 
+
+# FW
 FW_df1 <- FW_df %>% select(species_fraction,species_entropy, level_entropy) %>%  
   gather(legend, Entropy, -species_fraction)
 ggplot(FW_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
   geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
   scale_fill_manual("legend", values = c("species_entropy" = "#D35400", "level_entropy" = "#9B59B6")) + 
   ggtitle("Food Webs") 
+

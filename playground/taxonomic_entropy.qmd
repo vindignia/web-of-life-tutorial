@@ -115,7 +115,7 @@ PL_df1 <- PL_df %>% select(species_fraction,species_entropy, level_entropy) %>%
 ggplot(PL_df1, aes(x=species_fraction, y=Entropy, fill=Legend)) +
   geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
   scale_fill_manual("legend", values = c("species_entropy" = "#1E8449", "level_entropy" = "#9B59B6")) + 
-  ggtitle("Pollination") 
+  ggtitle("Pollination") + theme(legend.position = 'bottom')
 ```
 
 ```{r}
@@ -124,7 +124,7 @@ SD_df1 <- SD_df %>% select(species_fraction,species_entropy, level_entropy) %>%
 ggplot(SD_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
   geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
   scale_fill_manual("legend", values = c("species_entropy" = "#2E86C1", "level_entropy" = "#9B59B6")) + 
-  ggtitle("Seed Dispersal") 
+  ggtitle("Seed Dispersal") + theme(legend.position = 'bottom')
 ```
 
 ```{r}
@@ -133,5 +133,5 @@ FW_df1 <- FW_df %>% select(species_fraction,species_entropy, level_entropy) %>%
 ggplot(FW_df1, aes(x=species_fraction, y=Entropy, fill=legend)) +
   geom_bar(stat="identity", alpha = 0.5, position = "dodge") + 
   scale_fill_manual("legend", values = c("species_entropy" = "#D35400", "level_entropy" = "#9B59B6")) + 
-  ggtitle("Food Webs") 
+  ggtitle("Food Webs") + theme(legend.position = 'bottom')
 ```
