@@ -134,7 +134,7 @@ for (ii in seq(1,100)){
                                        nest_equif = weboflife::nestedness(NM_equif),
                                        nest_cell= weboflife::nestedness(NM_cell),
                                        nest_swap = weboflife::nestedness(NM_swap)
-                                       ))
+  ))
 }
 
 colnames(nest_df) <- c("iter","nest_equif","nest_cell","nest_swap")

@@ -13,8 +13,16 @@ library(devtools)
 
 base_url <- "https://www.web-of-life.es/" 
 
-nw_name <- "A_PH_003" # "M _PL_073" # "M_PA_002" # " # "FW_017_02" # "M_PL_052" #Klementyna
+#nw_name <- "M_PL_073" # "A_PH_003" # "M_PA_002" # " # "FW_017_02" # "M_PL_052" #Klementyna
 
+# downlaod foodwebs 
+
+json_url <- paste0(base_url,"get_networks.php?interaction_type=FoodWebs") 
+fw_nws <- jsonlite::fromJSON(json_url)
+nw_names <- distinct(fw_nws,network_name) 
+
+FW_001_graph <- FW_001_nw %>% select(species1, species2, connection_strength) %>% 
+  graph_from_data_frame(directed = TRUE)
 
 # info
 my_info <- read.csv(paste0(base_url,"get_species_info.php?network_name=",nw_name))
@@ -59,7 +67,7 @@ for (iter in iter_range) {
   modules1 <- cluster_fast_greedy(my_graph)
   modules2 <- cluster_edge_betweenness(my_graph)
   modules3 <- cluster_leading_eigen(my_graph)
-  modules4 <- cluster_optimal(my_graph) 
+  #modules4 <- cluster_optimal(my_graph) 
   
   mod_row <- data.frame(modularity(modules1, resolution=1), 
                         modularity(modules2, resolution=1), 
@@ -74,7 +82,7 @@ colnames(modularity_df) <- c("modularity_fast_greedy",
 
 modularity_df %>% formattable()
 
-modules <- modules2
+modules <- modules3
 colbar <- rainbow(max(modules$membership))
 V(my_graph)$color <- colbar[modules$membership]
 
@@ -83,4 +91,6 @@ plot(my_graph,
      vertex.size=12, 
      vertex.label=NA,
      margin=0.0)
+
+
 
