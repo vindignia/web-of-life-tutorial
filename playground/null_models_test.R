@@ -13,12 +13,14 @@ setwd("/home/alessandro/Documents/UZH_icloud/tutorial_project/web-of-life-tutori
 
 # LOAD EXTERNAL PACKAGES
 # PACKAGE FROM vindigna github
-#remove.packages("weboflife")
+remove.packages("rweboflife")
+detach(package:rweboflife,unload=TRUE)
+devtools::install_github("vindignia/rweboflife", force=TRUE)
 #devtools::install_github("bascompte-lab/rweboflife", force=TRUE)
 library(rweboflife)
 
-n <- 500 #137 # number of rows 37
-m <- 500 # number of columns 32
+n <- 128 #200 #137 # number of rows 37
+m <- 93 # 200 # number of columns 32
 M <- matrix(0,n,m)
 
 for(i in 1:n){
@@ -27,7 +29,11 @@ for(i in 1:n){
     M[i,j] <- floor(runif(1, min = 0, max = 1.2))  # binary sparse
   }
 }
-
+M <-  as.matrix((M > 0))
+class(M) <- "numeric"
+df <- as.data.frame(M)
+path_to_folder <- "/home/alessandro/Documents/UZH_icloud/tutorial_project/web-of-life-tutorial/playground/matrices/"
+write.csv(df,file=paste0(path_to_folder,"matrix.csv"),row.names=FALSE)
 
 # write.table(M,file="matrix.txt",row.names=FALSE) # drops the rownames
 # rweboflife::nestedness(M)
@@ -38,6 +44,23 @@ for(i in 1:n){
 # rweboflife::swap_modelCpp(M, 33)
 # M_res <- rweboflife::null_model(M, model = "swap")
 
+rweboflife::swap_modelCpp(M, iter_max = 4)
+
+all(rows_tot_rnd == rows_tot_original)
+
+
+print("check col total")
+cols_tot_rnd <- c()
+cols_tot_original <- c()
+
+print("check col sums")
+for(j in seq(1,ncol(M))){
+  cols_tot_rnd <- append(cols_tot_rnd, sum(M_res[,j]))
+  cols_tot_original <- append(cols_tot_original, sum(M_res[,j]))
+  print(c(sum(M[,j]),  sum(M_res[,j])))
+}
+
+all(cols_tot_rnd == cols_tot_original)
 
 
 df <- NULL
@@ -77,16 +100,6 @@ for (i in 0:5000){
 }
 
 
-# # check sum totals
-# print("check row sums")
-# for(i in seq(1,nrow(M))){
-#     print(c(sum(M[i,]),  sum(M_res[i,])))
-# }
-#
-# print("check col sums")
-# for(j in seq(1,ncol(M))){
-#   print(c(sum(M[,j]),  sum(M_res[,j])))
-# }
 
 
 colnames(df) <- c("iter","overlap", "v_fraction","model")
@@ -174,9 +187,15 @@ ggplot() +
 
 #swap_model <- function(Mat,iter_max)
 
-checkerboard_swap_model <- function(binary_matrix, iter_max) {
+checkerboard_swap_model <- function(binary_matrix, iter_max = NULL) {
   rows <- nrow(binary_matrix)
   cols <- ncol(binary_matrix)
+
+  if(is.null(iter_max)){
+    iter_max <- ceiling(10*sqrt(rows*cols))
+    warning(paste0("as the parameter iter_max was not assigned, the default value iter_max = ", iter_max," was assumed"))
+  }
+
   ID <- matrix(c(1, 0, 0, 1), nrow = 2,byrow = TRUE)
   SX <- matrix(c(0, 1, 1, 0), nrow = 2,byrow = TRUE)
 
@@ -223,3 +242,6 @@ for (subset in detected_subsets) {
   print(subset)
 }
 
+Hi, given the matrices A and B, how should i translate te R command
+all(A == B)
+that check if all elements of the A and B matrices are equal into Rcpp?
