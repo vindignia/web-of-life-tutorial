@@ -1,7 +1,7 @@
 library(rjson) 
 library(dplyr)
 library(igraph)
-library(rweboflife)
+#library(rweboflife)
 library(ggplot2)
 library(latex2exp)
 library(formattable)
@@ -25,17 +25,18 @@ my_graph <- my_nw %>% select(species1, species2, connection_strength) %>%
   graph_from_data_frame() 
 
 
-data <- k_distribution(my_graph)
+df <- k_distribution(my_graph)
 # data_ct <- data_ct %>% mutate(k_i = k*frequency)
 # k_ave_ct <- sum(data_ct$k_i) 
 # k_ave_ct
-
-ggplot() +
+p <- ggplot() +
   ggtitle("degree dist") +
-  geom_point(data = data, aes(k, frequency), color = "purple",shape = 1) +
+  geom_point(data = df, aes(k, frequency), color = "purple",shape = 1) +
   # Add segments
   #annotate("segment", x = k_ave_ct, xend = 3, y = 0, yend = 0.5, colour = "black", size=1, alpha=0.5) +
   # Add text
   ylab(TeX("$P(k)$")) + 
   xlab(TeX("$k$"))
 
+print(p)
+ 
